@@ -50,9 +50,6 @@ export const TwoFactorAuth: React.FC<TwoFactorAuthProps> = ({
       const supported = browserSupportsWebAuthn();
       setWebAuthnSupported(supported);
 
-      // SECURITY: Check if 2FA was EVER set up (across all browsers/modes)
-      const everSetup = localStorage.getItem(GLOBAL_SETUP_MARKER_KEY) === 'true';
-
       // Check if TOTP setup is complete IN THIS BROWSER
       const totpSetupComplete = localStorage.getItem(TOTP_SETUP_COMPLETE_KEY) === 'true';
       const totpSecret = localStorage.getItem(TOTP_SECRET_KEY);
@@ -73,22 +70,44 @@ export const TwoFactorAuth: React.FC<TwoFactorAuthProps> = ({
         setAuthMethod('totp');
       }
 
-      // SECURITY FIX: Never show QR code after initial setup
-      // Only allow first-time setup in persistent browser (not incognito)
+      // SECURITY FIX: Prevent setup in incognito/private mode
+      // This is a single-user blog - setup should only happen ONCE in normal browser
       if (!setupComplete && authMethod === 'totp') {
-        // Check if we're in a temporary/incognito session
-        const isLikelyIncognito = !navigator.cookieEnabled ||
-          (window.opener && !window.opener.closed);
+        // Detect if running in private/incognito mode
+        // Check 1: Try to detect private mode via various methods
+        const seemsPrivate = (function() {
+          // Private mode often has limited storage
+          try {
+            if (!window.indexedDB) return true;
+            if (window.localStorage.length === 0 && window.sessionStorage.length === 0) {
+              // Completely empty storage might indicate private mode
+              return true;
+            }
+          } catch (e) {
+            return true;
+          }
+          return false;
+        })();
 
-        // SECURITY: If 2FA was ever set up, NEVER show QR code again
-        if (everSetup && !totpSecret) {
-          setError('2FA is enabled on this blog. Use your existing authenticator app or YubiKey. If you lost access, see RESET_2FA.md');
-          return;
-        }
+        // Check 2: If this is the SECOND time seeing the setup screen, block it
+        // On first load, sessionStorage is empty. On reload, it persists (but incognito resets it)
+        const setupAttempts = sessionStorage.getItem('ham_radio_setup_attempts') || '0';
+        const attempts = parseInt(setupAttempts, 10);
 
-        // SECURITY: Don't allow setup in incognito/temporary browsers
-        if (isLikelyIncognito && !totpSecret) {
-          setError('Please use a normal browser window (not incognito) to set up 2FA. Incognito mode cannot persist credentials.');
+        // CRITICAL SECURITY FIX: Detect if this is user's main browser vs incognito
+        // Check if there's ANY blog data in localStorage (posts, session, etc.)
+        const hasBlogData = Object.keys(localStorage).some(key =>
+          key.startsWith('ham_radio_') && key !== TOTP_SECRET_KEY && key !== GLOBAL_SETUP_MARKER_KEY
+        );
+
+        // If this browser has blog data BUT no secret, likely user already set up 2FA elsewhere
+        // OR if the global marker exists (from a previous session before incognito)
+        const everSetup = localStorage.getItem(GLOBAL_SETUP_MARKER_KEY) === 'true';
+
+        if (!totpSecret && (hasBlogData || everSetup)) {
+          // This browser has used the blog before, so 2FA is likely already configured
+          setError('⚠️ 2FA is already configured for this blog. Use your existing Google Authenticator app or YubiKey to authenticate. Opening setup in a new browser or incognito mode is not allowed. If you lost access, see RESET_2FA.md for emergency reset.');
+          setIsSetupComplete(true); // Force to auth-only screen
           return;
         }
 

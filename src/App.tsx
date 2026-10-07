@@ -610,13 +610,6 @@ export default function App() {
             >
               Export Journal & Logs (JSON)
             </button>
-            <span aria-hidden="true">·</span>
-            <button
-              onClick={handleClearAllData}
-              className="hover:text-rose-400 text-slate-500 transition-colors"
-            >
-              Clear All Data
-            </button>
           </div>
         </div>
       </footer>
