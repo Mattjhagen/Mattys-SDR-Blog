@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Populate AkSarBen ARC Nets</title>
+</head>
+<body>
+    <h1>AkSarBen ARC Net Populator</h1>
+    <p>Open your blog at <a href="https://mattjhagen.xyz" target="_blank">https://mattjhagen.xyz</a></p>
+    <p>Open browser console (F12) and paste the code below:</p>
+
+    <textarea id="code" style="width:100%; height:600px; font-family:monospace; font-size:12px;" readonly>
+// AkSarBen ARC Area Nets - Auto-populate
+// Source: https://www.aksarbenarc.org/home/index.php/area-nets
+
+const akSarBenNets = [
+  // Monday
+  {
+    name: "South-West Iowa ARES",
+    dayOfWeek: "Monday",
+    timeLocal: "7:00 PM",
+    frequency: "145.29 MHz",
+    offset: "",
+    tone: "",
+    mode: "FM Analog",
+    netControlCall: "Rotating",
+    echolinkNode: "",
+    description: "Glenwood, IA ARES net"
+  },
+  {
+    name: "NE Missouri SWOT",
+    dayOfWeek: "Monday",
+    timeLocal: "8:00 PM",
+    frequency: "144.22 MHz",
+    offset: "",
+    tone: "",
+    mode: "FM Analog",
+    netControlCall: "Rotating",
+    echolinkNode: "",
+    description: "Northeast Missouri SWOT net"
+  },
+  {
+    name: "Chat Net",
+    dayOfWeek: "Monday",
+    timeLocal: "9:00 PM",
+    frequency: "146.94 MHz",
+    offset: "",
+    tone: "",
+    mode: "FM Analog",
+    netControlCall: "Rotating",
+    echolinkNode: "",
+    description: "Monday evening chat net"
+  },
+
+  // Tuesday
+  {
+    name: "QCWA Net Chapter 210",
+    dayOfWeek: "Tuesday",
+    timeLocal: "7:00 PM",
+    frequency: "147.36 MHz",
+    offset: "",
+    tone: "",
+    mode: "FM Analog",
+    netControlCall: "Rotating",
+    echolinkNode: "",
+    description: "Quarter Century Wireless Association net (seasonal, October through March)"
+  },
+  {
+    name: "6m SSB Net",
+    dayOfWeek: "Tuesday",
+    timeLocal: "8:00 PM",
+    frequency: "50.2 MHz",
+    offset: "",
+    tone: "",
+    mode: "SSB",
+    netControlCall: "Rotating",
+    echolinkNode: "",
+    description: "6-meter single sideband net"
+  },
+  {
+    name: "Washington Co. ARES",
+    dayOfWeek: "Tuesday",
+    timeLocal: "9:00 PM",
+    frequency: "145.31 MHz",
+    offset: "",
+    tone: "",
+    mode: "FM Analog",
+    netControlCall: "Rotating",
+    echolinkNode: "",
+    description: "Washington County, NE ARES net"
+  },
+
+  // Wednesday
+  {
+    name: "Dodge Co. ARES",
+    dayOfWeek: "Wednesday",
+    timeLocal: "7:00 PM",
+    frequency: "146.67 MHz",
+    offset: "",
+    tone: "",
+    mode: "FM Analog",
+    netControlCall: "Rotating",
+    echolinkNode: "",
+    description: "Dodge County, NE ARES net"
+  },
+  {
+    name: "Mid-America Council Radio Scouting",
+    dayOfWeek: "Wednesday",
+    timeLocal: "8:00 PM",
+    frequency: "147.39 MHz",
+    offset: "",
+    tone: "131.8 Hz",
+    mode: "FM Analog",
+    netControlCall: "Rotating",
+    echolinkNode: "",
+    description: "Boy Scouts radio merit badge net (PL 131.8)"
+  },
+  {
+    name: "Saunders Co. ARES",
+    dayOfWeek: "Wednesday",
+    timeLocal: "8:00 PM",
+    frequency: "145.31 MHz",
+    offset: "",
+    tone: "",
+    mode: "FM Analog",
+    netControlCall: "Rotating",
+    echolinkNode: "",
+    description: "Saunders County, NE ARES net"
+  },
+  {
+    name: "Pottawattamie County ARES",
+    dayOfWeek: "Wednesday",
+    timeLocal: "9:00 PM",
+    frequency: "442.225 MHz",
+    offset: "+5 MHz",
+    tone: "",
+    mode: "FM Analog",
+    netControlCall: "Rotating",
+    echolinkNode: "",
+    description: "Council Bluffs, IA ARES net on 70cm"
+  },
+
+  // Thursday
+  {
+    name: "10-Meter HF Net",
+    dayOfWeek: "Thursday",
+    timeLocal: "8:00 PM",
+    frequency: "28.35 MHz",
+    offset: "",
+    tone: "",
+    mode: "SSB",
+    netControlCall: "Rotating",
+    echolinkNode: "",
+    description: "10-meter SSB net"
+  },
+  {
+    name: "2-Meter SSB Net",
+    dayOfWeek: "Thursday",
+    timeLocal: "8:00 PM",
+    frequency: "144.250 MHz",
+    offset: "",
+    tone: "",
+    mode: "SSB",
+    netControlCall: "Rotating",
+    echolinkNode: "",
+    description: "2-meter single sideband weak-signal net"
+  },
+  {
+    name: "Heartland DX Association",
+    dayOfWeek: "Thursday",
+    timeLocal: "8:00 PM",
+    frequency: "146.360 MHz",
+    offset: "-600 kHz",
+    tone: "",
+    mode: "FM Analog",
+    netControlCall: "Rotating",
+    echolinkNode: "",
+    description: "Heartland DX club net"
+  },
+  {
+    name: "10-Meter Net",
+    dayOfWeek: "Thursday",
+    timeLocal: "9:00 PM",
+    frequency: "28.305 MHz",
+    offset: "",
+    tone: "",
+    mode: "SSB",
+    netControlCall: "Rotating",
+    echolinkNode: "",
+    description: "10-meter SSB net"
+  },
+
+  // Friday
+  {
+    name: "Promote the Band Net",
+    dayOfWeek: "Friday",
+    timeLocal: "10:00 PM",
+    frequency: "224.76 MHz",
+    offset: "-1.6 MHz",
+    tone: "",
+    mode: "FM Analog",
+    netControlCall: "Rotating",
+    echolinkNode: "",
+    description: "1.25m (220 MHz) band promotion net"
+  },
+
+  // Saturday
+  {
+    name: "Heartland Hams Saturday Tech Net",
+    dayOfWeek: "Saturday",
+    timeLocal: "Time varies",
+    frequency: "145.29 MHz",
+    offset: "",
+    tone: "",
+    mode: "FM Analog",
+    netControlCall: "Rotating",
+    echolinkNode: "",
+    description: "Saturday technical discussion net"
+  },
+
+  // Sunday (none listed on source page)
+];
+
+// Save to localStorage
+try {
+  const NETS_STORAGE_KEY = 'ham_radio_club_nets_v3';
+
+  // Get existing nets
+  const existing = JSON.parse(localStorage.getItem(NETS_STORAGE_KEY) || '[]');
+
+  // Merge with new nets (avoid duplicates)
+  const merged = [...existing];
+  let addedCount = 0;
+
+  akSarBenNets.forEach(newNet => {
+    const isDuplicate = existing.some(e =>
+      e.name === newNet.name &&
+      e.dayOfWeek === newNet.dayOfWeek &&
+      e.timeLocal === newNet.timeLocal
+    );
+
+    if (!isDuplicate) {
+      merged.push(newNet);
+      addedCount++;
+    }
+  });
+
+  // Save merged list
+  localStorage.setItem(NETS_STORAGE_KEY, JSON.stringify(merged));
+
+  console.log(`✅ Success!`);
+  console.log(`   Added ${addedCount} new nets`);
+  console.log(`   Total nets: ${merged.length}`);
+  console.log(`   Refresh the page and click "Club Nets" to see them!`);
+
+} catch (e) {
+  console.error('❌ Failed to save nets:', e);
+}
+    </textarea>
+
+    <br><br>
+    <button onclick="copyCode()" style="padding:10px 20px; font-size:16px;">📋 Copy Code to Clipboard</button>
+
+    <script>
+        function copyCode() {
+            const code = document.getElementById('code');
+            code.select();
+            document.execCommand('copy');
+            alert('✅ Code copied! Now:\n1. Open https://mattjhagen.xyz\n2. Press F12 (open console)\n3. Paste the code\n4. Press Enter\n5. Refresh and click "Club Nets"');
+        }
+    </script>
+
+    <hr>
+    <h2>Manual Steps</h2>
+    <ol>
+        <li><strong>Open your blog:</strong> <a href="https://mattjhagen.xyz" target="_blank">https://mattjhagen.xyz</a></li>
+        <li><strong>Open browser console:</strong> Press <code>F12</code></li>
+        <li><strong>Copy the code above</strong> (click the button or select all)</li>
+        <li><strong>Paste into console</strong> and press Enter</li>
+        <li><strong>Refresh the page</strong></li>
+        <li><strong>Click "Club Nets"</strong> in navigation</li>
+        <li><strong>See all 17 AkSarBen area nets!</strong> 🎉</li>
+    </ol>
+
+    <hr>
+    <h2>Nets Included</h2>
+    <ul>
+        <li><strong>Monday:</strong> SW Iowa ARES, NE Missouri SWOT, Chat Net</li>
+        <li><strong>Tuesday:</strong> QCWA, 6m SSB, Washington Co. ARES</li>
+        <li><strong>Wednesday:</strong> Dodge Co. ARES, Scouting Net, Saunders Co. ARES, Pottawattamie ARES</li>
+        <li><strong>Thursday:</strong> 10m HF, 2m SSB, Heartland DX, 10m</li>
+        <li><strong>Friday:</strong> 1.25m Promote the Band</li>
+        <li><strong>Saturday:</strong> Heartland Hams Tech Net</li>
+    </ul>
+
+    <p><strong>Source:</strong> <a href="https://www.aksarbenarc.org/home/index.php/area-nets" target="_blank">AkSarBen ARC Area Nets</a></p>
+
+    <hr>
+    <p style="color:#666; font-size:12px;">
+        73 de W7SDR! 📡<br>
+        These nets are from the AkSarBen Amateur Radio Club<br>
+        Last updated: October 7, 2026
+    </p>
+</body>
+</html>
