@@ -1,0 +1,18 @@
+================================================================================
+CLOUDFLARE TUNNEL CONFIGURATION
+================================================================================
+
+✅ TUNNEL CREATED SUCCESSFULLY!
+
+Tunnel Name: mattys-sdr-blog
+Tunnel ID:   ec54e2a6-bbb7-4ca7-895f-7c747e05bdf4
+Credentials: /home/matt/.cloudflared/ec54e2a6-bbb7-4ca7-895f-7c747e05bdf4.json
+
+CNAME Target for DNS: ec54e2a6-bbb7-4ca7-895f-7c747e05bdf4.cfargotunnel.com
+
+================================================================================
+
+📋 COPY THIS CNAME TARGET TO YOUR DNS RECORDS:
+   ec54e2a6-bbb7-4ca7-895f-7c747e05bdf4.cfargotunnel.com
+
+================================================================================

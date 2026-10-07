@@ -1,5 +1,5 @@
 tunnel: mattys-sdr-blog
-credentials-file: /home/matt/.cloudflared/mattys-sdr-blog.json
+credentials-file: /home/matt/.cloudflared/ec54e2a6-bbb7-4ca7-895f-7c747e05bdf4.json
 
 ingress:
   - hostname: mattjhagen.xyz

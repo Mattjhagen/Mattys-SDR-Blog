@@ -1,0 +1,37 @@
+================================================================================
+QUICK DNS UPDATE GUIDE
+================================================================================
+
+You already have DNS records for mattjhagen.xyz. Here's how to update them:
+
+🌐 GO TO CLOUDFLARE DASHBOARD:
+   https://dash.cloudflare.com/ → Select "mattjhagen.xyz" → Click "DNS"
+
+✏️ UPDATE THE ROOT DOMAIN (@):
+   1. Find the existing record for "@" or "mattjhagen.xyz"
+   2. Click "Edit"
+   3. Change to: Type: CNAME
+   4. Target: ec54e2a6-bbb7-4ca7-895f-7c747e05bdf4.cfargotunnel.com
+   5. Proxy status: ON (orange cloud ☁️)
+   6. Save
+
+✏️ UPDATE WWW SUBDOMAIN:
+   1. Find or create record for "www"
+   2. Type: CNAME
+   3. Target: ec54e2a6-bbb7-4ca7-895f-7c747e05bdf4.cfargotunnel.com
+   4. Proxy status: ON (orange cloud ☁️)
+   5. Save
+
+⏰ WAIT: 1-5 minutes for DNS to propagate
+
+✅ THEN RUN:
+   cd ~/Mattys-SDR-Blog
+   ./deploy.sh
+
+   # Follow the printed commands to install systemd services
+
+🎉 YOUR BLOG WILL BE LIVE AT: https://mattjhagen.xyz
+
+================================================================================
+
+Full details in: DNS_SETUP.md
