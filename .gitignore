@@ -6,3 +6,10 @@ coverage/
 *.log
 .env*
 !.env.example
+
+# 2FA secrets and backups
+2fa-secret-backup.txt
+*-secret-*.txt
+.~lock.*
+setup-2fa-fresh.html
+*-2fa-fresh.html

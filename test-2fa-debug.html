@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head><title>2FA Debug</title></head>
+<body>
+<h1>2FA Debug Tool</h1>
+<p>Open your blog at <a href="https://mattjhagen.xyz" target="_blank">https://mattjhagen.xyz</a></p>
+<p>Then open browser console (F12) and paste this:</p>
+
+<textarea id="code" style="width:100%; height:400px;" readonly>
+// 2FA Debug - Check what's stored
+console.log('=== 2FA DEBUG ===');
+
+const secret = localStorage.getItem('ham_radio_totp_secret_v1');
+const setupComplete = localStorage.getItem('ham_radio_totp_setup_complete_v1');
+const globalSetup = localStorage.getItem('ham_radio_2fa_ever_setup_v1');
+
+console.log('Secret exists:', !!secret);
+console.log('Secret value:', secret ? secret.substring(0, 8) + '...' : 'NONE');
+console.log('Setup complete flag:', setupComplete);
+console.log('Global setup flag:', globalSetup);
+
+// Check all ham_radio keys
+const allKeys = Object.keys(localStorage).filter(k => k.startsWith('ham_radio_'));
+console.log('All ham_radio keys:', allKeys);
+console.log('Total keys:', allKeys.length);
+
+// Test TOTP generation
+if (secret) {
+  console.log('✅ Secret found - codes should work');
+  console.log('If codes not working, time might be off or secret corrupted');
+} else {
+  console.log('❌ NO SECRET - this is the problem!');
+  console.log('You need to reset 2FA');
+}
+
+// Show if blog data exists
+const hasBlogData = allKeys.some(k => k !== 'ham_radio_totp_secret_v1' && k !== 'ham_radio_2fa_ever_setup_v1');
+console.log('Has blog data:', hasBlogData);
+</textarea>
+
+<button onclick="navigator.clipboard.writeText(document.getElementById('code').value).then(() => alert('Copied! Paste in console.'))" style="padding:10px 20px; font-size:16px;">Copy Debug Code</button>
+
+<hr>
+<h2>Emergency Reset (if codes don't work)</h2>
+<textarea id="reset" style="width:100%; height:200px;" readonly>
+// EMERGENCY RESET - Only if codes aren't working
+localStorage.removeItem('ham_radio_totp_secret_v1');
+localStorage.removeItem('ham_radio_totp_setup_complete_v1');
+localStorage.removeItem('ham_radio_2fa_ever_setup_v1');
+localStorage.removeItem('ham_radio_webauthn_credentials_v1');
+localStorage.removeItem('ham_radio_admin_session_v1');
+
+console.log('✅ 2FA reset complete');
+console.log('Refresh the page to set up fresh 2FA');
+</textarea>
+
+<button onclick="navigator.clipboard.writeText(document.getElementById('reset').value).then(() => alert('Copied! Paste in console to reset.'))" style="padding:10px 20px; font-size:16px; background:red; color:white;">Copy Emergency Reset</button>
+
+</body>
+</html>
