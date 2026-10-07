@@ -8,20 +8,28 @@ interface PostDetailViewProps {
   onBack: () => void;
   onLike: (postId: string) => void;
   onAddComment: (postId: string, comment: Omit<CommentItem, 'id' | 'timestamp'>) => void;
+  onSelectCategory?: (category: BlogPost['category']) => void;
+  onSelectTag?: (tag: string) => void;
+  onEditPost?: (post: BlogPost) => void;
 }
 
 export const PostDetailView: React.FC<PostDetailViewProps> = ({
   post,
   onBack,
   onLike,
-  onAddComment
+  onAddComment,
+  onSelectCategory,
+  onSelectTag,
+  onEditPost
 }) => {
   const [isPlayingMorse, setIsPlayingMorse] = useState(false);
   const [copiedLink, setCopiedLink] = useState(false);
-  const [commentCallsign, setCommentCallsign] = useState('');
   const [commentName, setCommentName] = useState('');
+  const [commentEmail, setCommentEmail] = useState('');
+  const [commentCallsign, setCommentCallsign] = useState('');
   const [commentRst, setCommentRst] = useState('599');
   const [commentMessage, setCommentMessage] = useState('');
+  const [commentSuccess, setCommentSuccess] = useState(false);
 
   const handleToggleMorse = () => {
     if (isPlayingMorse) {
@@ -43,16 +51,19 @@ export const PostDetailView: React.FC<PostDetailViewProps> = ({
 
   const handleSubmitComment = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!commentCallsign.trim() || !commentMessage.trim()) return;
+    if (!commentName.trim() || !commentMessage.trim()) return;
 
     onAddComment(post.id, {
-      callsign: commentCallsign.trim().toUpperCase(),
-      name: commentName.trim() || 'Club Member',
+      name: commentName.trim(),
+      email: commentEmail.trim() || undefined,
+      callsign: commentCallsign.trim() ? commentCallsign.trim().toUpperCase() : undefined,
       rstReport: commentRst.trim() || undefined,
       message: commentMessage.trim()
     });
 
     setCommentMessage('');
+    setCommentSuccess(true);
+    setTimeout(() => setCommentSuccess(false), 3000);
   };
 
   // Basic Markdown Renderer for article content (headers, tables, code blocks, lists, quotes)
@@ -201,6 +212,14 @@ export const PostDetailView: React.FC<PostDetailViewProps> = ({
         </button>
 
         <div className="flex items-center gap-2">
+          {onEditPost && (
+            <button
+              onClick={() => onEditPost(post)}
+              className="px-3 py-1.5 rounded-lg border border-amber-500/40 bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 text-xs font-medium flex items-center gap-1.5 transition-colors"
+            >
+              <span>Edit Transmission</span>
+            </button>
+          )}
           <button
             onClick={handleCopyLink}
             className="px-3 py-1.5 rounded-lg border border-slate-800 bg-slate-900/60 hover:bg-slate-800 text-slate-300 text-xs flex items-center gap-1.5 transition-colors"
@@ -222,7 +241,13 @@ export const PostDetailView: React.FC<PostDetailViewProps> = ({
       <header className="space-y-4">
         {/* Zero-Pill Metadata */}
         <div className="flex flex-wrap items-center gap-2 text-xs text-slate-400 font-mono">
-          <span className="text-amber-400 font-semibold">{post.category}</span>
+          <button
+            onClick={() => onSelectCategory && onSelectCategory(post.category)}
+            className="text-amber-400 font-semibold hover:underline cursor-pointer"
+            title="Filter by this category"
+          >
+            {post.category}
+          </button>
           <span aria-hidden="true">·</span>
           <span>{post.publishedAt}</span>
           <span aria-hidden="true">·</span>
@@ -326,9 +351,14 @@ export const PostDetailView: React.FC<PostDetailViewProps> = ({
       <div className="pt-6 border-t border-slate-800 flex flex-wrap items-center gap-2 text-xs text-slate-400">
         <span className="font-mono text-slate-500">TAGS:</span>
         {post.tags.map((tag) => (
-          <span key={tag} className="text-slate-300 font-mono">
+          <button
+            key={tag}
+            onClick={() => onSelectTag && onSelectTag(tag)}
+            className="text-slate-300 font-mono hover:text-amber-300 hover:underline cursor-pointer transition-colors"
+            title={`Filter posts tagged #${tag}`}
+          >
             #{tag}
-          </span>
+          </button>
         ))}
       </div>
 
@@ -338,11 +368,11 @@ export const PostDetailView: React.FC<PostDetailViewProps> = ({
           <div className="flex items-center gap-2">
             <MessageSquare className="w-4 h-4 text-amber-400" />
             <h3 className="font-display text-xl font-bold text-white">
-              Club Member Remarks & QSL Reports
+              Comments & Field Reports
             </h3>
           </div>
           <span className="text-xs font-mono text-slate-500">
-            {post.comments.length} check-ins
+            {post.comments.length} comments
           </span>
         </div>
 
@@ -355,10 +385,14 @@ export const PostDetailView: React.FC<PostDetailViewProps> = ({
             >
               <div className="flex items-center justify-between text-xs">
                 <div className="flex items-center gap-2">
-                  <span className="font-mono font-bold text-amber-400">
-                    {comment.callsign}
+                  <span className="font-semibold text-white">
+                    {comment.name}
                   </span>
-                  <span className="text-slate-400 font-medium">({comment.name})</span>
+                  {comment.callsign && (
+                    <span className="font-mono font-bold text-amber-400">
+                      ({comment.callsign})
+                    </span>
+                  )}
                   {comment.rstReport && (
                     <span className="text-slate-500 font-mono">
                       · RST: <strong className="text-white">{comment.rstReport}</strong>
@@ -377,42 +411,63 @@ export const PostDetailView: React.FC<PostDetailViewProps> = ({
 
           {post.comments.length === 0 && (
             <p className="text-xs text-slate-500 py-4 text-center">
-              No comments yet. Be the first club member to log your 73 or ask a technical question!
+              No comments yet. Leave a comment or question about this adventure below!
             </p>
           )}
         </div>
 
         {/* Add Comment Form */}
         <form onSubmit={handleSubmitComment} className="p-5 rounded-2xl bg-slate-900/80 border border-slate-800 space-y-4">
-          <h4 className="text-xs font-mono font-bold text-slate-300 tracking-wider">
-            SUBMIT ON-AIR REMARK / 73 LOG
-          </h4>
+          <div className="flex items-center justify-between">
+            <h4 className="text-xs font-mono font-bold text-slate-300 tracking-wider">
+              LEAVE A COMMENT
+            </h4>
+            {commentSuccess && (
+              <span className="text-xs text-emerald-400 font-mono flex items-center gap-1">
+                <Check className="w-3.5 h-3.5" />
+                Comment posted successfully!
+              </span>
+            )}
+          </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
             <div>
               <label className="block text-[11px] font-mono text-slate-400 mb-1">
-                YOUR CALLSIGN *
+                NAME *
               </label>
               <input
                 type="text"
                 required
-                value={commentCallsign}
-                onChange={(e) => setCommentCallsign(e.target.value.toUpperCase())}
-                placeholder="e.g. K7NVH"
-                className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-lg text-xs font-mono text-amber-300 uppercase focus:outline-none focus:border-amber-400"
+                value={commentName}
+                onChange={(e) => setCommentName(e.target.value)}
+                placeholder="e.g. Dave Henderson"
+                className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-lg text-xs text-slate-200 focus:outline-none focus:border-amber-400"
               />
             </div>
 
             <div>
               <label className="block text-[11px] font-mono text-slate-400 mb-1">
-                NAME / OPERATOR
+                EMAIL <span className="text-slate-500 font-normal">(OPTIONAL)</span>
+              </label>
+              <input
+                type="email"
+                value={commentEmail}
+                onChange={(e) => setCommentEmail(e.target.value)}
+                placeholder="dave@example.com"
+                className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-lg text-xs text-slate-200 focus:outline-none focus:border-amber-400"
+              />
+            </div>
+
+            <div>
+              <label className="block text-[11px] font-mono text-slate-400 mb-1">
+                CALLSIGN <span className="text-slate-500 font-normal">(OPTIONAL)</span>
               </label>
               <input
                 type="text"
-                value={commentName}
-                onChange={(e) => setCommentName(e.target.value)}
-                placeholder="e.g. Dave Henderson"
-                className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-lg text-xs text-slate-200 focus:outline-none focus:border-amber-400"
+                value={commentCallsign}
+                onChange={(e) => setCommentCallsign(e.target.value.toUpperCase())}
+                placeholder="e.g. K7NVH"
+                className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-lg text-xs font-mono text-amber-300 uppercase focus:outline-none focus:border-amber-400"
               />
             </div>
 
@@ -432,14 +487,14 @@ export const PostDetailView: React.FC<PostDetailViewProps> = ({
 
           <div>
             <label className="block text-[11px] font-mono text-slate-400 mb-1">
-              REMARK / TECHNICAL NOTE *
+              COMMENT *
             </label>
             <textarea
               required
               rows={3}
               value={commentMessage}
               onChange={(e) => setCommentMessage(e.target.value)}
-              placeholder="Leave feedback on antenna SWR, ask a question, or send 73..."
+              placeholder="Leave feedback on antenna SWR, ask an SDR question, or share your thoughts..."
               className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-lg text-xs text-slate-200 focus:outline-none focus:border-amber-400 leading-relaxed"
             />
           </div>
@@ -450,7 +505,7 @@ export const PostDetailView: React.FC<PostDetailViewProps> = ({
               className="px-4 py-2 text-xs font-semibold rounded-lg bg-amber-400 hover:bg-amber-300 text-slate-950 flex items-center gap-1.5 transition-colors"
             >
               <Send className="w-3.5 h-3.5" />
-              <span>Post to Club Log</span>
+              <span>Submit Comment</span>
             </button>
           </div>
         </form>

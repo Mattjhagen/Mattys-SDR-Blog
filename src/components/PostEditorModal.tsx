@@ -16,42 +16,84 @@ const STOCK_IMAGES = [
   { label: 'Backyard Mag Loop', path: '/src/assets/images/article_hf_magloop_1791391189393.jpg' }
 ];
 
+const OPERATOR_PROFILE_KEY = 'ham_radio_operator_profile_v1';
+
 export const PostEditorModal: React.FC<PostEditorModalProps> = ({
   isOpen,
   onClose,
   onSave,
   existingPost
 }) => {
-  const [title, setTitle] = useState(existingPost?.title || '');
-  const [excerpt, setExcerpt] = useState(existingPost?.excerpt || '');
-  const [content, setContent] = useState(
-    existingPost?.content ||
-      `## Adventure Overview\nWrite about your radio setup, operating conditions, and what you heard or worked on air today.\n\n### Signal Chain & Rig\n- **Receiver/Rig**: \n- **Antenna**: \n- **Conditions**: \n\n### Key Takeaways\n- `
-  );
-  const [category, setCategory] = useState<Exclude<BlogCategory, 'All'>>(
-    existingPost?.category || 'SDR & DSP'
-  );
-  const [band, setBand] = useState(existingPost?.band || '20m (14 MHz)');
-  const [qthGrid, setQthGrid] = useState(existingPost?.qthGrid || 'CN87us');
-  const [rigEquipment, setRigEquipment] = useState(
-    existingPost?.rigEquipment || 'RTL-SDR Blog v4 · End-Fed Half Wave (EFHW)'
-  );
-  const [authorCallsign, setAuthorCallsign] = useState(
-    existingPost?.authorCallsign || 'W7SDR'
-  );
-  const [authorName, setAuthorName] = useState(
-    existingPost?.authorName || 'Matt Hagen'
-  );
-  const [authorQth, setAuthorQth] = useState(
-    existingPost?.authorQth || 'Puget Sound, WA'
-  );
-  const [coverImage, setCoverImage] = useState(
-    existingPost?.coverImage || STOCK_IMAGES[0].path
-  );
-  const [tagsStr, setTagsStr] = useState(
-    existingPost?.tags ? existingPost.tags.join(', ') : 'SDR, Ham Radio, Field Log'
-  );
+  const [title, setTitle] = useState('');
+  const [excerpt, setExcerpt] = useState('');
+  const [content, setContent] = useState('');
+  const [category, setCategory] = useState<Exclude<BlogCategory, 'All'>>('SDR & DSP');
+  const [band, setBand] = useState('20m (14 MHz)');
+  const [qthGrid, setQthGrid] = useState('');
+  const [rigEquipment, setRigEquipment] = useState('');
+  const [authorCallsign, setAuthorCallsign] = useState('');
+  const [authorName, setAuthorName] = useState('');
+  const [authorQth, setAuthorQth] = useState('');
+  const [coverImage, setCoverImage] = useState(STOCK_IMAGES[0].path);
+  const [tagsStr, setTagsStr] = useState('');
   const [previewTab, setPreviewTab] = useState<'edit' | 'preview'>('edit');
+
+  const SUGGESTED_TAGS = [
+    'SDR', 'HF', 'VHF', 'POTA', 'QRP', 'CW', 'Antenna Build', 
+    'Satellites', 'FT8', 'Magnetic Loop', 'HOA Stealth', 'NanoVNA', 'Club Project'
+  ];
+
+  // Sync form when existingPost changes or modal opens
+  React.useEffect(() => {
+    if (existingPost) {
+      setTitle(existingPost.title);
+      setExcerpt(existingPost.excerpt);
+      setContent(existingPost.content);
+      setCategory(existingPost.category);
+      setBand(existingPost.band);
+      setQthGrid(existingPost.qthGrid);
+      setRigEquipment(existingPost.rigEquipment);
+      setAuthorCallsign(existingPost.authorCallsign);
+      setAuthorName(existingPost.authorName);
+      setAuthorQth(existingPost.authorQth);
+      setCoverImage(existingPost.coverImage);
+      setTagsStr(existingPost.tags.join(', '));
+    } else {
+      // Load saved operator profile if user has created a post before
+      let savedProfile: { callsign?: string; name?: string; qth?: string; grid?: string; rig?: string } = {};
+      try {
+        const stored = localStorage.getItem(OPERATOR_PROFILE_KEY);
+        if (stored) savedProfile = JSON.parse(stored);
+      } catch (e) {
+        console.error(e);
+      }
+
+      setTitle('');
+      setExcerpt('');
+      setContent(
+        `## Adventure Overview\nWrite about your radio setup, operating conditions, and what you heard or worked on air today.\n\n### Signal Chain & Rig\n- **Receiver/Rig**: \n- **Antenna**: \n- **Conditions**: \n\n### Key Takeaways\n- `
+      );
+      setCategory('SDR & DSP');
+      setBand('20m (14 MHz)');
+      setQthGrid(savedProfile.grid || '');
+      setRigEquipment(savedProfile.rig || '');
+      setAuthorCallsign(savedProfile.callsign || '');
+      setAuthorName(savedProfile.name || '');
+      setAuthorQth(savedProfile.qth || '');
+      setCoverImage(STOCK_IMAGES[0].path);
+      setTagsStr('');
+    }
+  }, [existingPost, isOpen]);
+
+  const handleAddTag = (tag: string) => {
+    const current = tagsStr
+      .split(',')
+      .map((t) => t.trim())
+      .filter(Boolean);
+    if (!current.includes(tag)) {
+      setTagsStr(current.length > 0 ? `${tagsStr}, ${tag}` : tag);
+    }
+  };
 
   if (!isOpen) return null;
 
@@ -104,6 +146,22 @@ export const PostEditorModal: React.FC<PostEditorModalProps> = ({
       likes: existingPost?.likes || 0,
       comments: existingPost?.comments || []
     };
+
+    // Save operator profile preferences for future posts
+    try {
+      localStorage.setItem(
+        OPERATOR_PROFILE_KEY,
+        JSON.stringify({
+          callsign: authorCallsign.trim().toUpperCase(),
+          name: authorName.trim(),
+          qth: authorQth.trim(),
+          grid: qthGrid.trim().toUpperCase(),
+          rig: rigEquipment.trim()
+        })
+      );
+    } catch (err) {
+      console.error(err);
+    }
 
     onSave(newPost);
     onClose();
@@ -369,6 +427,20 @@ export const PostEditorModal: React.FC<PostEditorModalProps> = ({
               placeholder="SDR, 20m, POTA, CW, Antenna Build"
               className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-lg text-xs font-mono text-slate-200 focus:outline-none focus:border-amber-400"
             />
+            {/* Quick Suggested Tags */}
+            <div className="mt-2 flex flex-wrap items-center gap-1.5">
+              <span className="text-[10px] font-mono text-slate-500">Suggested:</span>
+              {SUGGESTED_TAGS.map((tag) => (
+                <button
+                  type="button"
+                  key={tag}
+                  onClick={() => handleAddTag(tag)}
+                  className="px-2 py-0.5 rounded text-[10px] font-mono bg-slate-800/80 hover:bg-slate-700 text-slate-300 hover:text-white transition-colors"
+                >
+                  +{tag}
+                </button>
+              ))}
+            </div>
           </div>
 
           {/* Footer Submit Buttons */}

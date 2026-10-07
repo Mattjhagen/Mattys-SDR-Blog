@@ -6,13 +6,15 @@ interface HeroBannerProps {
   onOpenNets: () => void;
   onOpenNewPost: () => void;
   postCount: number;
+  contactCount: number;
 }
 
 export const HeroBanner: React.FC<HeroBannerProps> = ({
   onOpenWaterfall,
   onOpenNets,
   onOpenNewPost,
-  postCount
+  postCount,
+  contactCount
 }) => {
   return (
     <div className="relative rounded-3xl overflow-hidden border border-slate-800 bg-slate-900/60 p-6 sm:p-10 lg:p-12 mb-10">
@@ -25,11 +27,11 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({
         <div className="lg:col-span-7 space-y-5">
           {/* Unboxed Metadata Kicker */}
           <div className="flex flex-wrap items-center gap-2 text-xs font-mono text-slate-400">
-            <span className="text-amber-400 font-bold tracking-wide">STATION W7SDR</span>
+            <span className="text-amber-400 font-bold tracking-wide">AMATEUR RADIO JOURNAL</span>
             <span aria-hidden="true" className="text-slate-600">·</span>
-            <span>GRID CN87us</span>
+            <span>SDR LABS & FIELD EXPEDITIONS</span>
             <span aria-hidden="true" className="text-slate-600">·</span>
-            <span>VALLEY AMATEUR RADIO CLUB</span>
+            <span>LOCAL HAM CLUB</span>
           </div>
 
           {/* Headline with text-wrap: balance */}
@@ -39,17 +41,25 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({
 
           {/* Editorial Subtitle */}
           <p className="text-sm sm:text-base text-slate-300 leading-relaxed max-w-xl">
-            A technical journal chronicling Software Defined Radio experiments, low-power QRP summits, homebrew magnetic loops, and weather satellite downlinks to keep our local club informed.
+            A technical journal chronicling Software Defined Radio experiments, low-power QRP summits, homebrew antenna builds, and satellite downlinks to keep your local ham club informed.
           </p>
 
           {/* Quick CTA Actions */}
           <div className="flex flex-wrap items-center gap-3 pt-2">
             <button
-              onClick={onOpenWaterfall}
+              onClick={onOpenNewPost}
               className="px-5 py-2.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold text-xs flex items-center gap-2 transition-colors shadow-sm"
             >
-              <Activity className="w-4 h-4 stroke-[2.5]" />
-              <span>Launch SDR Waterfall Lab</span>
+              <Radio className="w-4 h-4 stroke-[2.5]" />
+              <span>Write Transmission</span>
+            </button>
+
+            <button
+              onClick={onOpenWaterfall}
+              className="px-4 py-2.5 rounded-xl bg-slate-950/80 hover:bg-slate-800 border border-slate-700 text-slate-200 font-semibold text-xs flex items-center gap-2 transition-colors"
+            >
+              <Activity className="w-4 h-4 text-amber-400" />
+              <span>Launch SDR Waterfall</span>
             </button>
 
             <button
@@ -57,25 +67,27 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({
               className="px-4 py-2.5 rounded-xl bg-slate-950/80 hover:bg-slate-800 border border-slate-700 text-slate-200 font-semibold text-xs flex items-center gap-2 transition-colors"
             >
               <Calendar className="w-4 h-4 text-amber-400" />
-              <span>Weekly Club Nets</span>
+              <span>Club Nets</span>
             </button>
           </div>
 
-          {/* Unboxed Statistics Counter */}
+          {/* Real Unboxed Statistics Counter */}
           <div className="pt-4 border-t border-slate-800/80 flex items-center gap-6 text-xs font-mono text-slate-400">
             <div>
               <span className="text-white font-bold text-base block tabular-nums">{postCount}</span>
-              <span className="text-[11px] text-slate-500">Documented Logs</span>
+              <span className="text-[11px] text-slate-500">Transmissions</span>
             </div>
             <div className="h-6 w-px bg-slate-800" />
             <div>
-              <span className="text-white font-bold text-base block tabular-nums">146.88 MHz</span>
-              <span className="text-[11px] text-slate-500">Club 2m Repeater</span>
+              <span className="text-white font-bold text-base block tabular-nums">{contactCount}</span>
+              <span className="text-[11px] text-slate-500">Confirmed QSOs</span>
             </div>
             <div className="h-6 w-px bg-slate-800" />
             <div>
-              <span className="text-amber-400 font-bold text-base block tabular-nums">SFI 168</span>
-              <span className="text-[11px] text-slate-500">Cycle 25 Solar Flux</span>
+              <span className="text-amber-400 font-bold text-base block tabular-nums">
+                {postCount > 0 ? 'Active' : 'Monitoring'}
+              </span>
+              <span className="text-[11px] text-slate-500">Operating Status</span>
             </div>
           </div>
         </div>
@@ -95,9 +107,9 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({
             <div className="absolute bottom-3.5 left-3.5 right-3.5 flex items-center justify-between text-xs font-mono text-slate-300 drop-shadow">
               <div className="flex items-center gap-2">
                 <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                <span className="font-semibold text-white">SHACK VFO ACTIVE</span>
+                <span className="font-semibold text-white">READY FOR TRANSMISSION</span>
               </div>
-              <span className="text-amber-400 font-bold">14.074 MHz USB</span>
+              <span className="text-amber-400 font-bold">LOG ACTIVE</span>
             </div>
           </div>
         </div>

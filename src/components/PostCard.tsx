@@ -7,9 +7,19 @@ interface PostCardProps {
   post: BlogPost;
   onSelect: (post: BlogPost) => void;
   onLike: (e: React.MouseEvent, postId: string) => void;
+  onSelectCategory?: (category: BlogPost['category']) => void;
+  onSelectTag?: (tag: string) => void;
+  onEditPost?: (post: BlogPost) => void;
 }
 
-export const PostCard: React.FC<PostCardProps> = ({ post, onSelect, onLike }) => {
+export const PostCard: React.FC<PostCardProps> = ({
+  post,
+  onSelect,
+  onLike,
+  onSelectCategory,
+  onSelectTag,
+  onEditPost
+}) => {
   const [imageError, setImageError] = useState(false);
   const [isPlayingCallsign, setIsPlayingCallsign] = useState(false);
 
@@ -63,7 +73,15 @@ export const PostCard: React.FC<PostCardProps> = ({ post, onSelect, onLike }) =>
         <div>
           {/* Metadata Discipline: Clean unboxed text with typographic separators (NO PILLS) */}
           <div className="flex items-center gap-2 text-xs text-slate-400 mb-2.5">
-            <span className="text-amber-400 font-medium">{post.category}</span>
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                if (onSelectCategory) onSelectCategory(post.category);
+              }}
+              className="text-amber-400 font-medium hover:underline cursor-pointer"
+            >
+              {post.category}
+            </button>
             <span aria-hidden="true" className="text-slate-600">·</span>
             <span>{post.publishedAt}</span>
             <span aria-hidden="true" className="text-slate-600">·</span>
@@ -80,9 +98,30 @@ export const PostCard: React.FC<PostCardProps> = ({ post, onSelect, onLike }) =>
             {post.excerpt}
           </p>
 
+          {/* Tags list on card */}
+          {post.tags && post.tags.length > 0 && (
+            <div className="mt-3 flex flex-wrap gap-1.5 text-[11px] font-mono text-slate-400">
+              {post.tags.slice(0, 3).map((tag) => (
+                <button
+                  key={tag}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    if (onSelectTag) onSelectTag(tag);
+                  }}
+                  className="text-slate-400 hover:text-amber-300 hover:underline transition-colors"
+                >
+                  #{tag}
+                </button>
+              ))}
+              {post.tags.length > 3 && (
+                <span className="text-slate-600">+{post.tags.length - 3}</span>
+              )}
+            </div>
+          )}
+
           {/* Rig & Gear Details */}
           {post.rigEquipment && (
-            <div className="mt-3.5 pt-3 border-t border-slate-800/80 text-[11px] font-mono text-slate-400 flex items-center gap-1.5 truncate">
+            <div className="mt-3 pt-3 border-t border-slate-800/80 text-[11px] font-mono text-slate-400 flex items-center gap-1.5 truncate">
               <span className="text-slate-500">RIG:</span>
               <span className="text-slate-300 truncate">{post.rigEquipment}</span>
             </div>

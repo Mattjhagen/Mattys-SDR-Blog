@@ -1,9 +1,11 @@
 import React from 'react';
 import { Radio, Plus, Compass, Activity, Volume2, Calendar, Download } from 'lucide-react';
 
+export type NavigationTab = 'posts' | 'archive' | 'map' | 'waterfall' | 'propagation' | 'nets';
+
 interface TopNavigationProps {
-  activeTab: 'posts' | 'waterfall' | 'propagation' | 'nets';
-  setActiveTab: (tab: 'posts' | 'waterfall' | 'propagation' | 'nets') => void;
+  activeTab: NavigationTab;
+  setActiveTab: (tab: NavigationTab) => void;
   onOpenNewPost: () => void;
   onOpenMorseModal: () => void;
   onOpenGridModal: () => void;
@@ -35,7 +37,7 @@ export const TopNavigation: React.FC<TopNavigationProps> = ({
         </button>
 
         {/* Zone 2: 4-6 Clean Text Navigation Links */}
-        <nav className="hidden md:flex items-center gap-6 text-sm font-medium">
+        <nav className="hidden md:flex items-center gap-5 text-sm font-medium">
           <button
             onClick={() => setActiveTab('posts')}
             className={`transition-colors whitespace-nowrap py-1 border-b-2 ${
@@ -45,6 +47,27 @@ export const TopNavigation: React.FC<TopNavigationProps> = ({
             }`}
           >
             Adventures
+          </button>
+          <button
+            onClick={() => setActiveTab('archive')}
+            className={`transition-colors whitespace-nowrap py-1 border-b-2 ${
+              activeTab === 'archive'
+                ? 'border-amber-400 text-amber-300 font-semibold'
+                : 'border-transparent text-slate-400 hover:text-slate-100'
+            }`}
+          >
+            Archive
+          </button>
+          <button
+            onClick={() => setActiveTab('map')}
+            className={`transition-colors whitespace-nowrap py-1 border-b-2 flex items-center gap-1.5 ${
+              activeTab === 'map'
+                ? 'border-amber-400 text-amber-300 font-semibold'
+                : 'border-transparent text-slate-400 hover:text-slate-100'
+            }`}
+          >
+            <Compass className="w-3.5 h-3.5 text-amber-400/80" />
+            QSO Map
           </button>
           <button
             onClick={() => setActiveTab('waterfall')}
@@ -78,26 +101,17 @@ export const TopNavigation: React.FC<TopNavigationProps> = ({
             <Calendar className="w-3.5 h-3.5 text-amber-400/80" />
             Club Nets
           </button>
-          <button
-            onClick={onOpenMorseModal}
-            className="text-slate-400 hover:text-slate-100 transition-colors whitespace-nowrap flex items-center gap-1.5"
-            title="CW Morse Code Generator & Player"
-          >
-            <Volume2 className="w-3.5 h-3.5 text-amber-400/70" />
-            Morse Keyer
-          </button>
-          <button
-            onClick={onOpenGridModal}
-            className="text-slate-400 hover:text-slate-100 transition-colors whitespace-nowrap flex items-center gap-1.5"
-            title="Maidenhead Grid Square Calculator"
-          >
-            <Compass className="w-3.5 h-3.5 text-amber-400/70" />
-            Grid QTH
-          </button>
         </nav>
 
         {/* Zone 3: 1-2 Primary Actions */}
         <div className="flex items-center gap-2.5">
+          <button
+            onClick={onOpenMorseModal}
+            title="CW Morse Code Generator & Player"
+            className="hidden sm:flex items-center justify-center w-9 h-9 rounded-lg border border-slate-800 bg-slate-900/60 text-slate-400 hover:text-slate-200 hover:border-slate-700 transition-colors"
+          >
+            <Volume2 className="w-4 h-4 text-amber-400/80" />
+          </button>
           <button
             onClick={onExportData}
             title="Backup & Export Journal Log (JSON)"

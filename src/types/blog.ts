@@ -9,11 +9,34 @@ export type BlogCategory =
 
 export interface CommentItem {
   id: string;
-  callsign: string;
   name: string;
+  email?: string;
+  callsign?: string;
   timestamp: string;
   message: string;
   rstReport?: string; // e.g., "599", "57"
+}
+
+export interface ContactedHam {
+  id: string;
+  callsign: string;
+  name: string;
+  city: string;
+  country: string;
+  gridSquare: string; // Maidenhead locator
+  lat: number;
+  lon: number;
+  band: string; // e.g. "20m", "40m"
+  mode: 'CW' | 'SSB' | 'FT8' | 'FM' | 'PSK31' | 'RTTY';
+  frequencyMhz?: number;
+  dateTimeUtc: string; // YYYY-MM-DD HH:mm
+  rstSent: string;
+  rstRcvd: string;
+  powerWatts?: number;
+  notes?: string;
+  blogPostId?: string; // ID of blog post describing this QSO/activation
+  distanceMiles?: number;
+  bearingDeg?: number;
 }
 
 export interface BlogPost {

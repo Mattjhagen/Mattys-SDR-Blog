@@ -11,7 +11,7 @@ interface MorseToolModalProps {
 export const MorseToolModal: React.FC<MorseToolModalProps> = ({
   isOpen,
   onClose,
-  initialText = 'CQ CQ CQ DE W7SDR K'
+  initialText = 'CQ CQ CQ K'
 }) => {
   const [text, setText] = useState(initialText);
   const [wpm, setWpm] = useState(18);
