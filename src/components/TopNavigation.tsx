@@ -1,7 +1,7 @@
 import React from 'react';
-import { Radio, Plus, Compass, Activity, Volume2, Calendar, Download } from 'lucide-react';
+import { Radio, Plus, Compass, Activity, Volume2, Calendar, Download, BookOpen } from 'lucide-react';
 
-export type NavigationTab = 'posts' | 'archive' | 'map' | 'waterfall' | 'propagation' | 'nets';
+export type NavigationTab = 'posts' | 'archive' | 'map' | 'waterfall' | 'propagation' | 'nets' | 'visitor-log';
 
 interface TopNavigationProps {
   activeTab: NavigationTab;
@@ -100,6 +100,17 @@ export const TopNavigation: React.FC<TopNavigationProps> = ({
           >
             <Calendar className="w-3.5 h-3.5 text-amber-400/80" />
             Club Nets
+          </button>
+          <button
+            onClick={() => setActiveTab('visitor-log')}
+            className={`transition-colors whitespace-nowrap py-1 border-b-2 flex items-center gap-1.5 ${
+              activeTab === 'visitor-log'
+                ? 'border-amber-400 text-amber-300 font-semibold'
+                : 'border-transparent text-slate-400 hover:text-slate-100'
+            }`}
+          >
+            <BookOpen className="w-3.5 h-3.5 text-amber-400/80" />
+            Visitor Log
           </button>
         </nav>
 

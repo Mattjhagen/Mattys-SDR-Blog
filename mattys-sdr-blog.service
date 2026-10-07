@@ -1,0 +1,22 @@
+[Unit]
+Description=Matt's SDR Blog Server
+After=network.target
+
+[Service]
+Type=simple
+User=matt
+WorkingDirectory=/home/matt/Mattys-SDR-Blog
+ExecStart=/usr/bin/node /home/matt/Mattys-SDR-Blog/server.js
+Restart=always
+RestartSec=10
+
+# Logging
+StandardOutput=append:/home/matt/Mattys-SDR-Blog/server.log
+StandardError=append:/home/matt/Mattys-SDR-Blog/server.log
+
+# Environment
+Environment=NODE_ENV=production
+Environment=PORT=3001
+
+[Install]
+WantedBy=multi-user.target

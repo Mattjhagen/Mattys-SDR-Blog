@@ -18,10 +18,13 @@ import { SolarWidget } from './components/SolarWidget';
 import { MorseToolModal } from './components/MorseToolModal';
 import { GridCalculatorModal } from './components/GridCalculatorModal';
 import { ClubScheduleModal } from './components/ClubScheduleModal';
+import { TwoFactorAuth } from './components/TwoFactorAuth';
+import { VisitorLog } from './components/VisitorLog';
 import { Search, Radio, Filter, Plus, Calendar, Compass, Volume2, Sparkles, Archive, Globe } from 'lucide-react';
 
 const POSTS_STORAGE_KEY = 'ham_radio_journal_posts_v3';
 const CONTACTS_STORAGE_KEY = 'ham_radio_journal_contacts_v3';
+const AUTH_SESSION_KEY = 'ham_radio_admin_session_v1';
 
 const CATEGORIES: BlogCategory[] = [
   'All',
@@ -84,6 +87,24 @@ export default function App() {
   const [isMorseOpen, setIsMorseOpen] = useState(false);
   const [isGridOpen, setIsGridOpen] = useState(false);
   const [isClubNetsOpen, setIsClubNetsOpen] = useState(false);
+  const [isLoginOpen, setIsLoginOpen] = useState(false);
+
+  // Authentication
+  const [isAuthenticated, setIsAuthenticated] = useState(() => {
+    try {
+      const session = localStorage.getItem(AUTH_SESSION_KEY);
+      if (session) {
+        const parsed = JSON.parse(session);
+        // Session valid for 24 hours
+        if (Date.now() - parsed.timestamp < 24 * 60 * 60 * 1000) {
+          return true;
+        }
+      }
+    } catch (e) {
+      console.error('Failed to load auth session:', e);
+    }
+    return false;
+  });
 
   // Save to localStorage
   useEffect(() => {
@@ -201,10 +222,33 @@ export default function App() {
     setIsEditorOpen(true);
   };
 
-  // Handle Open Create New Post
+  // Handle 2FA Authentication Success
+  const handle2FASuccess = () => {
+    try {
+      // Set session
+      const session = {
+        timestamp: Date.now()
+      };
+      localStorage.setItem(AUTH_SESSION_KEY, JSON.stringify(session));
+      setIsAuthenticated(true);
+      setIsLoginOpen(false);
+
+      // Now open the editor
+      setEditingPost(null);
+      setIsEditorOpen(true);
+    } catch (e) {
+      console.error('Authentication failed:', e);
+    }
+  };
+
+  // Handle Open Create New Post (requires 2FA authentication)
   const handleOpenNewPost = () => {
-    setEditingPost(null);
-    setIsEditorOpen(true);
+    if (!isAuthenticated) {
+      setIsLoginOpen(true);
+    } else {
+      setEditingPost(null);
+      setIsEditorOpen(true);
+    }
   };
 
   // Handle Export Data
@@ -330,8 +374,11 @@ export default function App() {
             </div>
             <ClubScheduleModal isOpen={true} onClose={() => setActiveTab('posts')} />
           </div>
+        ) : activeTab === 'visitor-log' ? (
+          /* VIEW 7: VISITOR GUESTBOOK */
+          <VisitorLog />
         ) : (
-          /* VIEW 7: BLOG ADVENTURES DIRECTORY */
+          /* VIEW 8: BLOG ADVENTURES DIRECTORY */
           <div className="space-y-8">
             {/* Editorial Hero Banner */}
             <HeroBanner
@@ -598,6 +645,12 @@ export default function App() {
       <ClubScheduleModal
         isOpen={isClubNetsOpen}
         onClose={() => setIsClubNetsOpen(false)}
+      />
+
+      <TwoFactorAuth
+        isOpen={isLoginOpen}
+        onClose={() => setIsLoginOpen(false)}
+        onAuthenticated={handle2FASuccess}
       />
     </div>
   );

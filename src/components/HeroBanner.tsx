@@ -96,8 +96,8 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({
         <div className="lg:col-span-5">
           <div className="relative rounded-2xl overflow-hidden border border-slate-800/80 bg-slate-950 shadow-2xl group">
             <img
-              src="/src/assets/images/hero_ham_shack_1791391157714.jpg"
-              alt="Ham radio shack and SDR laboratory desk at night"
+              src="/images/Matt-at-Ham.png"
+              alt="Matt at the ham radio station"
               referrerPolicy="no-referrer"
               className="w-full aspect-[4/3] object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
             />
