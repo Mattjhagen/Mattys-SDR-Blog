@@ -3,7 +3,7 @@ credentials-file: /home/matt/.cloudflared/ec54e2a6-bbb7-4ca7-895f-7c747e05bdf4.j
 
 ingress:
   - hostname: mattjhagen.xyz
-    service: http://localhost:3000
+    service: http://localhost:3001
   - hostname: www.mattjhagen.xyz
-    service: http://localhost:3000
+    service: http://localhost:3001
   - service: http_status:404
