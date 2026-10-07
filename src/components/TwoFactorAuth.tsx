@@ -24,6 +24,7 @@ const TOTP_SECRET_KEY = 'ham_radio_totp_secret_v1';
 const TOTP_SETUP_COMPLETE_KEY = 'ham_radio_totp_setup_complete_v1';
 const WEBAUTHN_CREDENTIALS_KEY = 'ham_radio_webauthn_credentials_v1';
 const WEBAUTHN_CHALLENGE_KEY = 'ham_radio_webauthn_challenge_v1';
+const GLOBAL_SETUP_MARKER_KEY = 'ham_radio_2fa_ever_setup_v1'; // Cross-browser marker
 
 export const TwoFactorAuth: React.FC<TwoFactorAuthProps> = ({
   isOpen,
@@ -49,16 +50,21 @@ export const TwoFactorAuth: React.FC<TwoFactorAuthProps> = ({
       const supported = browserSupportsWebAuthn();
       setWebAuthnSupported(supported);
 
-      // Check if TOTP setup is complete
-      const totpSetupComplete = localStorage.getItem(TOTP_SETUP_COMPLETE_KEY) === 'true';
+      // SECURITY: Check if 2FA was EVER set up (across all browsers/modes)
+      const everSetup = localStorage.getItem(GLOBAL_SETUP_MARKER_KEY) === 'true';
 
-      // Check if YubiKey is registered
+      // Check if TOTP setup is complete IN THIS BROWSER
+      const totpSetupComplete = localStorage.getItem(TOTP_SETUP_COMPLETE_KEY) === 'true';
+      const totpSecret = localStorage.getItem(TOTP_SECRET_KEY);
+
+      // Check if YubiKey is registered IN THIS BROWSER
       const credentials = localStorage.getItem(WEBAUTHN_CREDENTIALS_KEY);
       const hasYubiKeySetup = !!(credentials && JSON.parse(credentials).length > 0);
       setHasYubiKey(hasYubiKeySetup);
 
       // Setup is complete if either method is configured
-      setIsSetupComplete(totpSetupComplete || hasYubiKeySetup);
+      const setupComplete = totpSetupComplete || hasYubiKeySetup;
+      setIsSetupComplete(setupComplete);
 
       // Default to YubiKey if available and supported, otherwise TOTP
       if (hasYubiKeySetup && supported) {
@@ -67,15 +73,33 @@ export const TwoFactorAuth: React.FC<TwoFactorAuthProps> = ({
         setAuthMethod('totp');
       }
 
-      if (!totpSetupComplete && authMethod === 'totp') {
-        // First time TOTP setup - generate secret and QR code
-        const existingSecret = localStorage.getItem(TOTP_SECRET_KEY);
-        let totpSecret: string;
+      // SECURITY FIX: Never show QR code after initial setup
+      // Only allow first-time setup in persistent browser (not incognito)
+      if (!setupComplete && authMethod === 'totp') {
+        // Check if we're in a temporary/incognito session
+        const isLikelyIncognito = !navigator.cookieEnabled ||
+          (window.opener && !window.opener.closed);
 
-        if (existingSecret) {
-          totpSecret = existingSecret;
+        // SECURITY: If 2FA was ever set up, NEVER show QR code again
+        if (everSetup && !totpSecret) {
+          setError('2FA is enabled on this blog. Use your existing authenticator app or YubiKey. If you lost access, see RESET_2FA.md');
+          return;
+        }
+
+        // SECURITY: Don't allow setup in incognito/temporary browsers
+        if (isLikelyIncognito && !totpSecret) {
+          setError('Please use a normal browser window (not incognito) to set up 2FA. Incognito mode cannot persist credentials.');
+          return;
+        }
+
+        // First time TOTP setup - only if we have a secret OR can generate one
+        let totpSecretKey: string;
+
+        if (totpSecret) {
+          // Use existing secret from this browser
+          totpSecretKey = totpSecret;
         } else {
-          // Generate new secret
+          // FIRST TIME EVER setup - generate new secret
           const totp = new OTPAuth.TOTP({
             issuer: '73 On The Air',
             label: 'W7SDR Blog',
@@ -83,17 +107,22 @@ export const TwoFactorAuth: React.FC<TwoFactorAuthProps> = ({
             digits: 6,
             period: 30,
           });
-          totpSecret = totp.secret.base32;
-          localStorage.setItem(TOTP_SECRET_KEY, totpSecret);
+          totpSecretKey = totp.secret.base32;
+          localStorage.setItem(TOTP_SECRET_KEY, totpSecretKey);
+          // Mark that 2FA has been set up (permanent marker)
+          localStorage.setItem(GLOBAL_SETUP_MARKER_KEY, 'true');
         }
 
-        setSecret(totpSecret);
+        setSecret(totpSecretKey);
 
         // Generate QR code URL
-        const otpauthUrl = `otpauth://totp/73%20On%20The%20Air:W7SDR%20Blog?secret=${totpSecret}&issuer=73%20On%20The%20Air`;
+        const otpauthUrl = `otpauth://totp/73%20On%20The%20Air:W7SDR%20Blog?secret=${totpSecretKey}&issuer=73%20On%20The%20Air`;
 
         QRCode.toDataURL(otpauthUrl).then(url => {
           setQrCodeUrl(url);
+        }).catch(err => {
+          console.error('QR code generation failed:', err);
+          setError('Failed to generate QR code');
         });
       }
     } catch (e) {
@@ -180,6 +209,9 @@ export const TwoFactorAuth: React.FC<TwoFactorAuthProps> = ({
         timestamp: Date.now(),
       });
       localStorage.setItem(WEBAUTHN_CREDENTIALS_KEY, JSON.stringify(credentials));
+
+      // SECURITY: Mark that 2FA is now active globally
+      localStorage.setItem(GLOBAL_SETUP_MARKER_KEY, 'true');
 
       setHasYubiKey(true);
       onAuthenticated();
@@ -272,6 +304,8 @@ export const TwoFactorAuth: React.FC<TwoFactorAuthProps> = ({
       // Mark setup as complete if this is first time
       if (!isSetupComplete) {
         localStorage.setItem(TOTP_SETUP_COMPLETE_KEY, 'true');
+        // SECURITY: Mark that 2FA is now active globally
+        localStorage.setItem(GLOBAL_SETUP_MARKER_KEY, 'true');
       }
       onAuthenticated();
       setCode('');

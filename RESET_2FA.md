@@ -19,8 +19,10 @@ localStorage.removeItem('ham_radio_totp_setup_complete_v1');
 localStorage.removeItem('ham_radio_webauthn_credentials_v1');
 localStorage.removeItem('ham_radio_webauthn_challenge_v1');
 localStorage.removeItem('ham_radio_admin_session_v1');
+localStorage.removeItem('ham_radio_2fa_ever_setup_v1'); // IMPORTANT: Allows new setup
 
 console.log('✅ All 2FA credentials cleared!');
+console.log('⚠️  You can now set up 2FA again with a NEW secret');
 ```
 
 4. **Refresh the page**
