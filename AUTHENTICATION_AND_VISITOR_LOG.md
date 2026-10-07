@@ -3,8 +3,10 @@
 ## ✅ Features Added
 
 Your blog now has:
-1. **Google Authenticator 2FA** - Only you can write transmissions
+1. **Two-Factor Authentication (2FA)** - Google Authenticator OR YubiKey
 2. **Public Visitor Log** - Anyone can sign the guestbook
+
+**New:** YubiKey hardware security key support! See `YUBIKEY_SETUP.md` for details.
 
 ---
 
