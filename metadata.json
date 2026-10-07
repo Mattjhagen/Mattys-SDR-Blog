@@ -1,0 +1,6 @@
+{
+  "name": "73 On The Air - Ham Radio & SDR Journal",
+  "description": "Adventures in amateur radio, software defined radio, field activations, and homebrew antennas for the local radio club.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
