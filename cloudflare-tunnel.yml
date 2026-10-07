@@ -1,0 +1,9 @@
+tunnel: mattys-sdr-blog
+credentials-file: /home/matt/.cloudflared/mattys-sdr-blog.json
+
+ingress:
+  - hostname: mattjhagen.xyz
+    service: http://localhost:3000
+  - hostname: www.mattjhagen.xyz
+    service: http://localhost:3000
+  - service: http_status:404
