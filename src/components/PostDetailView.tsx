@@ -216,8 +216,9 @@ export const PostDetailView: React.FC<PostDetailViewProps> = ({
             <button
               onClick={() => onEditPost(post)}
               className="px-3 py-1.5 rounded-lg border border-amber-500/40 bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 text-xs font-medium flex items-center gap-1.5 transition-colors"
+              aria-label="Edit this journal entry"
             >
-              <span>Edit Transmission</span>
+              <span>Edit Entry</span>
             </button>
           )}
           <button

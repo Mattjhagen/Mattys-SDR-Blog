@@ -43,7 +43,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onLogin
 
         {/* Description */}
         <p className="text-slate-400 text-sm mb-6">
-          This station's transmitter is protected. Enter the operator password to publish transmissions.
+          Authentication required to log journal entries and manage your logbook.
         </p>
 
         {/* Form */}
@@ -90,7 +90,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onLogin
         {/* Help Text */}
         <div className="mt-6 pt-6 border-t border-slate-800">
           <p className="text-slate-500 text-xs text-center">
-            73 de W7SDR • Operator credentials required for transmissions
+            73 DE {import.meta.env.VITE_HAM_CALLSIGN || 'SWL'} • Operator credentials required for journal access
           </p>
         </div>
       </div>

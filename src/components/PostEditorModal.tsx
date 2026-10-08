@@ -178,10 +178,10 @@ export const PostEditorModal: React.FC<PostEditorModalProps> = ({
             </div>
             <div>
               <h3 className="font-display text-lg font-bold tracking-tight text-white">
-                {existingPost ? 'Edit Adventure Transmission' : 'New Adventure Transmission'}
+                {existingPost ? 'Edit Journal Entry' : 'Log a Listen / Study Note'}
               </h3>
               <p className="text-xs text-slate-400">
-                Log SDR experiments, field activations, and antenna builds for club members
+                Document SWL receives, SDR experiments, antenna builds, and license study notes
               </p>
             </div>
           </div>
@@ -455,8 +455,9 @@ export const PostEditorModal: React.FC<PostEditorModalProps> = ({
             <button
               type="submit"
               className="px-5 py-2.5 text-xs font-bold rounded-lg bg-amber-400 hover:bg-amber-300 text-slate-950 transition-colors shadow-sm"
+              aria-label={existingPost ? 'Save changes to journal entry' : 'Publish new journal entry'}
             >
-              Publish Transmission
+              {existingPost ? 'Save Changes' : 'Publish Entry'}
             </button>
           </div>
         </form>

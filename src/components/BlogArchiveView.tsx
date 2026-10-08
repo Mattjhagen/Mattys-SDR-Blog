@@ -72,10 +72,10 @@ export const BlogArchiveView: React.FC<BlogArchiveViewProps> = ({
             <span>FIELD LOG CHRONICLES · CHRONOLOGICAL ARCHIVE</span>
           </div>
           <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-white mt-1">
-            Transmission Archive
+            SWL Journal Archive
           </h2>
           <p className="text-sm text-slate-400 mt-0.5">
-            Complete historical index of all published SDR experiments, field activations, and club logs organized by month.
+            Complete historical index of all logged listens, SDR experiments, and study notes organized by month.
           </p>
         </div>
 
@@ -83,7 +83,7 @@ export const BlogArchiveView: React.FC<BlogArchiveViewProps> = ({
         <div className="flex items-center gap-4 text-xs font-mono text-slate-400 p-2.5 rounded-xl bg-slate-900 border border-slate-800">
           <div>
             <span className="text-white font-bold block tabular-nums text-sm">{posts.length}</span>
-            <span className="text-[11px] text-slate-500">Transmissions</span>
+            <span className="text-[11px] text-slate-500">Journal Entries</span>
           </div>
           <div className="h-5 w-px bg-slate-800" />
           <div>
@@ -183,18 +183,19 @@ export const BlogArchiveView: React.FC<BlogArchiveViewProps> = ({
           <div className="p-12 text-center rounded-2xl bg-slate-900/40 border border-slate-800 space-y-3">
             <Radio className="w-10 h-10 text-slate-600 mx-auto" />
             <h4 className="font-display text-lg font-bold text-white">
-              No Archived Transmissions Yet
+              No Entries Yet
             </h4>
             <p className="text-xs text-slate-400 max-w-sm mx-auto">
-              Your chronological archive is currently empty. As you publish SDR and ham radio field logs, they will be cataloged here month by month.
+              Your chronological archive is currently empty. As you log listens and study notes, they will be cataloged here month by month.
             </p>
             {onOpenNewPost && (
               <div className="pt-2">
                 <button
                   onClick={onOpenNewPost}
                   className="px-4 py-2 text-xs font-bold rounded-lg bg-amber-400 hover:bg-amber-300 text-slate-950 transition-colors"
+                  aria-label="Log your first listen"
                 >
-                  Write Your First Transmission
+                  Log Your First Listen
                 </button>
               </div>
             )}

@@ -566,7 +566,7 @@ export const TwoFactorAuth: React.FC<TwoFactorAuthProps> = ({
             </p>
           )}
           <p className="text-slate-500 text-xs text-center">
-            73 de W7SDR • 2FA required for transmissions
+            73 DE {import.meta.env.VITE_HAM_CALLSIGN || 'SWL'} • 2FA required for journal management
           </p>
         </div>
       </div>

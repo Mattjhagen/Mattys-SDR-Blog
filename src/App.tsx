@@ -251,37 +251,33 @@ export default function App() {
     }
   };
 
-  // Handle Export Data
+  // Handle Export Data (ADIF-ready format)
   const handleExportData = () => {
+    const callsign = import.meta.env.VITE_HAM_CALLSIGN || 'SWL';
+    const grid = import.meta.env.VITE_MAIDENHEAD_GRID || 'EN09xv';
+
     const exportBundle = {
       exportDate: new Date().toISOString(),
-      station: 'W7SDR',
+      station: {
+        callsign,
+        grid,
+        mode: 'SWL',
+        status: 'Studying for Technician License'
+      },
       posts,
       contacts
     };
     const dataStr = 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(exportBundle, null, 2));
     const downloadAnchor = document.createElement('a');
     downloadAnchor.setAttribute('href', dataStr);
-    downloadAnchor.setAttribute('download', `ham_radio_sdr_blog_bundle_${new Date().toISOString().split('T')[0]}.json`);
+    downloadAnchor.setAttribute('download', `swl_logbook_${grid}_${new Date().toISOString().split('T')[0]}.json`);
     document.body.appendChild(downloadAnchor);
     downloadAnchor.click();
     downloadAnchor.remove();
   };
 
-  // Handle Clear All Data
-  const handleClearAllData = () => {
-    if (window.confirm('Clear all transmissions, comments, and logged contacts?')) {
-      setPosts([]);
-      setContacts([]);
-      setSelectedPost(null);
-      try {
-        localStorage.removeItem(POSTS_STORAGE_KEY);
-        localStorage.removeItem(CONTACTS_STORAGE_KEY);
-      } catch (e) {
-        console.error('Failed to clear storage:', e);
-      }
-    }
-  };
+  // Removed handleClearAllData - not needed in SWL mode
+  // Users can export/backup but clearing all data is destructive
 
   // Filter posts
   const filteredPosts = posts.filter((post) => {
@@ -424,9 +420,10 @@ export default function App() {
                   <button
                     onClick={() => setActiveTab('map')}
                     className="px-3 py-2 rounded-xl bg-slate-900 border border-slate-800 hover:border-slate-700 text-xs text-slate-300 font-medium flex items-center gap-1.5 transition-colors"
+                    aria-label={`QSO Map${contacts.length > 0 ? ` (${contacts.length} contacts)` : ''}`}
                   >
                     <Globe className="w-3.5 h-3.5 text-amber-400" />
-                    <span>QSO Map ({contacts.length})</span>
+                    <span>QSO Map{contacts.length > 0 ? ` (${contacts.length})` : ''}</span>
                   </button>
                   <button
                     onClick={() => setIsMorseOpen(true)}
@@ -455,23 +452,25 @@ export default function App() {
                 ))}
               </div>
 
-              {/* Tag Cloud Filter Bar */}
-              <div className="flex flex-wrap items-center gap-1.5 pt-1 text-xs font-mono">
-                <span className="text-slate-500 text-[11px] mr-1">TAGS:</span>
-                {allTags.map((tag) => (
-                  <button
-                    key={tag}
-                    onClick={() => setSelectedTag(selectedTag === tag ? null : tag)}
-                    className={`px-2.5 py-1 rounded-md text-[11px] transition-colors border ${
-                      selectedTag === tag
-                        ? 'bg-amber-500/20 text-amber-300 border-amber-500/50 font-semibold'
-                        : 'bg-slate-900/60 text-slate-400 border-slate-800 hover:text-white hover:border-slate-700'
-                    }`}
-                  >
-                    #{tag}
-                  </button>
-                ))}
-              </div>
+              {/* Tag Cloud Filter Bar - Only show if tags exist */}
+              {allTags.length > 0 && (
+                <div className="flex flex-wrap items-center gap-1.5 pt-1 text-xs font-mono">
+                  <span className="text-slate-500 text-[11px] mr-1">TAGS:</span>
+                  {allTags.map((tag) => (
+                    <button
+                      key={tag}
+                      onClick={() => setSelectedTag(selectedTag === tag ? null : tag)}
+                      className={`px-2.5 py-1 rounded-md text-[11px] transition-colors border ${
+                        selectedTag === tag
+                          ? 'bg-amber-500/20 text-amber-300 border-amber-500/50 font-semibold'
+                          : 'bg-slate-900/60 text-slate-400 border-slate-800 hover:text-white hover:border-slate-700'
+                      }`}
+                    >
+                      #{tag}
+                    </button>
+                  ))}
+                </div>
+              )}
 
               {/* Active Filter Indicators (if any) */}
               {(selectedTag || searchQuery || selectedCategory !== 'All') && (
@@ -531,18 +530,19 @@ export default function App() {
                   <Radio className="w-7 h-7" />
                 </div>
                 <h3 className="font-display text-xl font-bold text-white">
-                  No Transmissions Yet
+                  No Listens Logged Yet
                 </h3>
                 <p className="text-sm text-slate-400 max-w-md mx-auto leading-relaxed">
-                  Your amateur radio & SDR journal is clean and ready. Post your first field operation, receiver experiment, antenna build, or digital mode log to inform your club members.
+                  Your SWL journal is ready! Log your first shortwave catch - try monitoring WWV on 10 MHz, a local FM repeater, or NOAA weather satellites. Document your learning journey toward that Technician license.
                 </p>
                 <div className="pt-2 flex justify-center gap-3">
                   <button
                     onClick={handleOpenNewPost}
                     className="px-5 py-2.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold text-xs flex items-center gap-2 transition-colors shadow-sm"
+                    aria-label="Log your first listen"
                   >
                     <Plus className="w-4 h-4 stroke-[2.5]" />
-                    <span>Write First Transmission</span>
+                    <span>Log First Listen</span>
                   </button>
                 </div>
               </div>
@@ -550,10 +550,10 @@ export default function App() {
               <div className="p-12 text-center rounded-2xl bg-slate-900/40 border border-slate-800/80 space-y-3">
                 <Radio className="w-10 h-10 text-slate-600 mx-auto" />
                 <h3 className="font-display text-lg font-semibold text-white">
-                  No Transmissions Found
+                  No Entries Found
                 </h3>
                 <p className="text-xs text-slate-400 max-w-sm mx-auto">
-                  No journal logs matched your active category or search query. Try clearing filters or write a new transmission!
+                  No journal entries matched your active category or search query. Try clearing filters or log a new listen!
                 </p>
                 <div className="pt-2">
                   <button
@@ -563,6 +563,7 @@ export default function App() {
                       setSelectedTag(null);
                     }}
                     className="px-4 py-2 text-xs font-semibold rounded-lg bg-slate-800 hover:bg-slate-700 text-white transition-colors"
+                    aria-label="Clear all filters"
                   >
                     Clear Filters
                   </button>
@@ -575,41 +576,62 @@ export default function App() {
 
       {/* Footer */}
       <footer className="w-full border-t border-slate-800/80 bg-slate-950 mt-16 py-8">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
-          <div className="flex items-center gap-2">
-            <Radio className="w-4 h-4 text-amber-400/80" />
-            <span className="font-mono text-slate-400">
-              73 DE W7SDR · Valley Amateur Radio Club · Grid CN87us
-            </span>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-4">
+          {/* Top row - Station info and links */}
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 text-xs">
+            <div className="flex items-center gap-2 text-slate-400 font-mono">
+              <Radio className="w-4 h-4 text-amber-400/80" />
+              <span>
+                Callsign: <strong className="text-white">{import.meta.env.VITE_HAM_CALLSIGN || 'Pending (Studying)'}</strong>
+              </span>
+              <span aria-hidden="true" className="text-slate-600">·</span>
+              <span>
+                {import.meta.env.VITE_CLUB_NAME || 'Ak-Sar-Ben ARC'}
+              </span>
+              <span aria-hidden="true" className="text-slate-600">·</span>
+              <span>
+                Grid: <strong className="text-amber-400">{import.meta.env.VITE_MAIDENHEAD_GRID || 'EN09xv'}</strong>
+              </span>
+            </div>
+
+            <div className="flex items-center gap-4 text-slate-500">
+              <button
+                onClick={() => {
+                  setActiveTab('archive');
+                  setSelectedPost(null);
+                }}
+                className="hover:text-slate-300 transition-colors"
+              >
+                Archive
+              </button>
+              <span aria-hidden="true">·</span>
+              <button
+                onClick={() => {
+                  setActiveTab('visitor-log');
+                  setSelectedPost(null);
+                }}
+                className="hover:text-slate-300 transition-colors"
+              >
+                Guestbook
+              </button>
+              <span aria-hidden="true">·</span>
+              <button
+                onClick={handleExportData}
+                className="hover:text-slate-300 transition-colors"
+                aria-label="Export logbook as ADIF"
+              >
+                Export ADIF
+              </button>
+            </div>
           </div>
 
-          <div className="flex items-center gap-4">
-            <button
-              onClick={() => {
-                setActiveTab('archive');
-                setSelectedPost(null);
-              }}
-              className="hover:text-slate-300 transition-colors"
-            >
-              Blog Archive
-            </button>
-            <span aria-hidden="true">·</span>
-            <button
-              onClick={() => {
-                setActiveTab('map');
-                setSelectedPost(null);
-              }}
-              className="hover:text-slate-300 transition-colors"
-            >
-              QSO Contact Map
-            </button>
-            <span aria-hidden="true">·</span>
-            <button
-              onClick={handleExportData}
-              className="hover:text-slate-300 transition-colors"
-            >
-              Export Journal & Logs (JSON)
-            </button>
+          {/* Bottom row - SWL Disclaimer */}
+          <div className="text-center pt-3 border-t border-slate-800/50">
+            <p className="text-[11px] text-slate-500 leading-relaxed max-w-3xl mx-auto">
+              <strong className="text-amber-400/80">SWL RECEIVE-ONLY MODE:</strong> This is a shortwave listening journal documenting receive-only activities.
+              Operator is <strong>not yet licensed</strong> and studying for Amateur Radio Technician exam.
+              No transmissions are made. No remote transmit capability. RTL-SDR receive equipment on order.
+            </p>
           </div>
         </div>
       </footer>
