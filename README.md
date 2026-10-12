@@ -22,6 +22,14 @@ A comprehensive web platform for documenting amateur radio adventures, Software 
 - **Audio clip recorder** for capturing interesting contacts
 - Band presets: 20m HF DX, 40m nets, 2m calling (146.520), NOAA weather satellites
 
+### 🚨 Police Scanner
+- **Live emergency services radio** - Police, Fire, EMS, and Weather feeds
+- **Pre-loaded feeds** - Omaha Police, Lincoln Fire, NOAA Weather, and more
+- **Add custom feeds** - Support for Broadcastify, Scanner Radio, and custom URLs
+- **Feed management** - Add, delete, and organize your scanner feeds
+- **Volume control** - Adjust volume on-the-fly while listening
+- **Feed categories** - Organized by Police, Fire, EMS, Weather, and Custom types
+
 ### 🗺️ QSO Logbook & World Map
 - Interactive world map with geodesic paths to contacted stations
 - Maidenhead grid calculator with beam heading and distance
@@ -99,6 +107,59 @@ cd Mattys-SDR-Blog
    ```bash
    cloudflared tunnel --config cloudflare-tunnel.yml run mattys-sdr-blog
    ```
+
+## 🚨 Using the Police Scanner
+
+### Quick Start
+
+1. **Navigate to Scanner tab** in the top navigation
+2. **Browse available feeds** - Pre-loaded with local Nebraska feeds
+3. **Click "Play"** to start listening to any feed
+4. **Adjust volume** using the slider in the now-playing bar
+5. **Click "Stop"** to stop playback
+
+### Adding Custom Feeds
+
+1. Click **"+ Add Feed"** button
+2. Enter feed information:
+   - **Feed Name** (required) - e.g., "Douglas County Fire"
+   - **Description** - e.g., "Fire and EMS Dispatch"
+   - **Stream URL** (required) - Direct audio stream URL
+   - **Location** - e.g., "Omaha, NE"
+   - **Type** - Police, Fire, EMS, Weather, or Custom
+3. Click **"Add Feed"** to save
+
+### Finding Scanner Feeds
+
+- **Broadcastify**: Visit [broadcastify.com](https://www.broadcastify.com) to find feeds for your area
+  - Free feeds have 15-30 second ads
+  - Premium ($6.99/mo) removes ads and allows quick switching
+  - Find stream URLs by inspecting network traffic or using the feed ID
+- **Scanner Radio**: Browse feeds in the Scanner Radio app or website
+- **Direct URLs**: Any HTTP/HTTPS audio stream URL (MP3, AAC, HLS/M3U8)
+
+### Feed URL Formats
+
+```
+# Broadcastify direct stream
+https://broadcastify.cdnstream1.com/[FEED_ID]
+
+# Broadcastify recorded calls
+https://calls.broadcastify.com/[PATH]/[FILENAME].mp3
+
+# NOAA Weather Radio
+http://radio.weatherusa.net/NWR/[STATION].mp3
+
+# Generic HTTP audio stream
+http://your-stream-server.com/audio.mp3
+```
+
+### Tips
+
+- **Silent feeds are normal** - Scanner feeds are often quiet when there's no radio traffic
+- **Test with music stream** - Use the included SomaFM feed to verify streaming works
+- **Check network** - Some feeds may be offline or require authentication
+- **Browser compatibility** - Works best in Chrome, Firefox, and Safari
 
 ## 📻 Setting Up Live SDR Streaming
 
@@ -180,6 +241,7 @@ Mattys-SDR-Blog/
 ├── src/
 │   ├── components/         # React components
 │   │   ├── SdrWaterfallLab.tsx    # Live SDR streaming
+│   │   ├── PoliceScanner.tsx      # Police scanner feeds
 │   │   ├── ContactLogbookMap.tsx   # QSO map & logbook
 │   │   ├── PostEditorModal.tsx     # Blog post editor
 │   │   └── ...

@@ -1,7 +1,7 @@
 import React from 'react';
-import { Radio, Plus, Compass, Activity, Volume2, Calendar, Download, BookOpen } from 'lucide-react';
+import { Radio, Plus, Compass, Activity, Volume2, Calendar, Download, BookOpen, Shield } from 'lucide-react';
 
-export type NavigationTab = 'posts' | 'archive' | 'map' | 'waterfall' | 'propagation' | 'nets' | 'visitor-log';
+export type NavigationTab = 'posts' | 'archive' | 'map' | 'waterfall' | 'propagation' | 'nets' | 'visitor-log' | 'scanner';
 
 interface TopNavigationProps {
   activeTab: NavigationTab;
@@ -60,6 +60,18 @@ export const TopNavigation: React.FC<TopNavigationProps> = ({
           >
             <Activity className="w-3.5 h-3.5 text-amber-400/80" />
             Live SDR <span className="text-[10px] text-slate-500">(Soon)</span>
+          </button>
+          <button
+            onClick={() => setActiveTab('scanner')}
+            className={`transition-colors whitespace-nowrap py-1 border-b-2 flex items-center gap-1.5 ${
+              activeTab === 'scanner'
+                ? 'border-amber-400 text-amber-300 font-semibold'
+                : 'border-transparent text-slate-400 hover:text-slate-100'
+            }`}
+            aria-label="Police scanner and emergency services radio"
+          >
+            <Shield className="w-3.5 h-3.5 text-amber-400/80" />
+            Scanner
           </button>
           <button
             onClick={() => setActiveTab('propagation')}

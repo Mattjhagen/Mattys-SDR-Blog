@@ -14,6 +14,7 @@ import { PostEditorModal } from './components/PostEditorModal';
 import { BlogArchiveView } from './components/BlogArchiveView';
 import { ContactLogbookMap } from './components/ContactLogbookMap';
 import { SdrWaterfallLab } from './components/SdrWaterfallLab';
+import { PoliceScanner } from './components/PoliceScanner';
 import { SolarWidget } from './components/SolarWidget';
 import { MorseToolModal } from './components/MorseToolModal';
 import { GridCalculatorModal } from './components/GridCalculatorModal';
@@ -350,6 +351,9 @@ export default function App() {
         ) : activeTab === 'waterfall' ? (
           /* VIEW 4: SDR WATERFALL LAB */
           <SdrWaterfallLab />
+        ) : activeTab === 'scanner' ? (
+          /* VIEW 4.5: POLICE SCANNER */
+          <PoliceScanner />
         ) : activeTab === 'propagation' ? (
           /* VIEW 5: SOLAR & BAND PROPAGATION */
           <SolarWidget />
