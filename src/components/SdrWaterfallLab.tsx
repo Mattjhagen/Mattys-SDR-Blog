@@ -973,6 +973,72 @@ export const SdrWaterfallLab: React.FC = () => {
                   </div>
                 </div>
 
+                {/* Scanner Feed Presets */}
+                <div className="space-y-2 py-2 border-b border-slate-800/50 pb-3">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="text-[10px] text-slate-500 font-mono uppercase">Scanner Feeds:</span>
+                    <button
+                      type="button"
+                      onClick={() => handleSaveStreamUrl('http://ice1.somafm.com/groovesalad-128-mp3')}
+                      className="px-2 py-1 bg-slate-800/50 hover:bg-amber-500/20 border border-slate-700 hover:border-amber-500/40 rounded text-[10px] font-mono text-slate-300 hover:text-amber-300 transition-colors"
+                      title="Test music stream - SomaFM Groove Salad"
+                    >
+                      🎵 Test Music
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleSaveStreamUrl('http://radio.weatherusa.net/NWR/KIH61.mp3')}
+                      className="px-2 py-1 bg-slate-800/50 hover:bg-yellow-500/20 border border-slate-700 hover:border-yellow-500/40 rounded text-[10px] font-mono text-slate-300 hover:text-yellow-300 transition-colors"
+                      title="NOAA Weather Radio - Omaha KIH61"
+                    >
+                      🌤️ NOAA Omaha
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleSaveStreamUrl('https://calls.broadcastify.com/vlpd7o2r/1678/1791838366-52500.mp3')}
+                      className="px-2 py-1 bg-slate-800/50 hover:bg-blue-500/20 border border-slate-700 hover:border-blue-500/40 rounded text-[10px] font-mono text-slate-300 hover:text-blue-300 transition-colors"
+                      title="Omaha Police & Douglas County Sheriff"
+                    >
+                      🚔 Omaha PD
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleSaveStreamUrl('https://broadcastify.cdnstream1.com/27844')}
+                      className="px-2 py-1 bg-slate-800/50 hover:bg-red-500/20 border border-slate-700 hover:border-red-500/40 rounded text-[10px] font-mono text-slate-300 hover:text-red-300 transition-colors"
+                      title="Lincoln Fire & Rescue"
+                    >
+                      🚒 Lincoln Fire
+                    </button>
+                  </div>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="text-[10px] text-slate-500 font-mono uppercase">Public WebSDRs:</span>
+                    <button
+                      type="button"
+                      onClick={() => handleSaveStreamUrl('http://websdr.ewi.utwente.nl:8901/')}
+                      className="px-2 py-1 bg-slate-800/50 hover:bg-green-500/20 border border-slate-700 hover:border-green-500/40 rounded text-[10px] font-mono text-slate-300 hover:text-green-300 transition-colors"
+                      title="University of Twente WebSDR - Netherlands (HF/VHF)"
+                    >
+                      🇳🇱 Twente WebSDR
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleSaveStreamUrl('http://kiwisdr.com/public/')}
+                      className="px-2 py-1 bg-slate-800/50 hover:bg-green-500/20 border border-slate-700 hover:border-green-500/40 rounded text-[10px] font-mono text-slate-300 hover:text-green-300 transition-colors"
+                      title="KiwiSDR Network - Global HF receivers"
+                    >
+                      🌍 KiwiSDR Network
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleSaveStreamUrl('http://rx.linkfanel.net:8073/')}
+                      className="px-2 py-1 bg-slate-800/50 hover:bg-green-500/20 border border-slate-700 hover:border-green-500/40 rounded text-[10px] font-mono text-slate-300 hover:text-green-300 transition-colors"
+                      title="LinkFanel WebSDR - Sweden"
+                    >
+                      🇸🇪 Sweden WebSDR
+                    </button>
+                  </div>
+                </div>
+
                 <div className="flex items-center gap-2">
                   <input
                     type="text"
