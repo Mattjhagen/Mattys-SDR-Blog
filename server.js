@@ -42,6 +42,10 @@ wss.on('connection', (clientWs, req) => {
 
     // Forward messages: client -> SDR
     clientWs.on('message', (data) => {
+      const isText = typeof data === 'string';
+      const msg = isText ? data : `BINARY ${data.length} bytes`;
+      console.log(`📤 Client→SDR: ${msg}`);
+
       if (sdrWs.readyState === WebSocket.OPEN) {
         sdrWs.send(data);
       }
@@ -49,6 +53,10 @@ wss.on('connection', (clientWs, req) => {
 
     // Forward messages: SDR -> client
     sdrWs.on('message', (data) => {
+      const isText = typeof data === 'string';
+      const isBinary = data instanceof Buffer;
+      console.log(`📨 SDR→Client: ${isText ? 'TEXT' : isBinary ? 'BINARY' : 'OTHER'} ${isText ? data.length : isBinary ? data.length : 0} bytes`);
+
       if (clientWs.readyState === WebSocket.OPEN) {
         clientWs.send(data);
       }
