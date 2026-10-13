@@ -999,7 +999,7 @@ export const SdrWaterfallLab: React.FC = () => {
                 {/* Scanner Feed Presets */}
                 <div className="space-y-2 py-2 border-b border-slate-800/50 pb-3">
                   <div className="flex flex-wrap items-center gap-2">
-                    <span className="text-[10px] text-slate-500 font-mono uppercase">Scanner Feeds:</span>
+                    <span className="text-[10px] text-slate-500 font-mono uppercase">Quick Streams:</span>
                     <button
                       type="button"
                       onClick={() => handleSaveStreamUrl('http://ice1.somafm.com/groovesalad-128-mp3')}
@@ -1014,15 +1014,34 @@ export const SdrWaterfallLab: React.FC = () => {
                       className="px-2 py-1 bg-slate-800/50 hover:bg-yellow-500/20 border border-slate-700 hover:border-yellow-500/40 rounded text-[10px] font-mono text-slate-300 hover:text-yellow-300 transition-colors"
                       title="NOAA Weather Radio - Omaha KIH61"
                     >
-                      🌤️ NOAA Omaha
+                      🌤️ NOAA Weather
                     </button>
+                    <button
+                      type="button"
+                      onClick={() => handleSaveStreamUrl('http://stream.live.vc.bbcmedia.co.uk/bbc_world_service')}
+                      className="px-2 py-1 bg-slate-800/50 hover:bg-purple-500/20 border border-slate-700 hover:border-purple-500/40 rounded text-[10px] font-mono text-slate-300 hover:text-purple-300 transition-colors"
+                      title="BBC World Service Radio"
+                    >
+                      📻 BBC World
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleSaveStreamUrl('https://ntd1.akamaized.net/hls/live/2013923/NASA-NTV1-HLS/master.m3u8')}
+                      className="px-2 py-1 bg-slate-800/50 hover:bg-blue-500/20 border border-slate-700 hover:border-blue-500/40 rounded text-[10px] font-mono text-slate-300 hover:text-blue-300 transition-colors"
+                      title="NASA TV Audio"
+                    >
+                      🚀 NASA Audio
+                    </button>
+                  </div>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="text-[10px] text-slate-500 font-mono uppercase">Scanner Feeds:</span>
                     <button
                       type="button"
                       onClick={() => handleSaveStreamUrl('https://calls.broadcastify.com/vlpd7o2r/1678/1791838366-52500.mp3')}
                       className="px-2 py-1 bg-slate-800/50 hover:bg-blue-500/20 border border-slate-700 hover:border-blue-500/40 rounded text-[10px] font-mono text-slate-300 hover:text-blue-300 transition-colors"
                       title="Omaha Police & Douglas County Sheriff"
                     >
-                      🚔 Omaha PD
+                      🚔 Omaha Police
                     </button>
                     <button
                       type="button"
@@ -1032,36 +1051,17 @@ export const SdrWaterfallLab: React.FC = () => {
                     >
                       🚒 Lincoln Fire
                     </button>
-                  </div>
-                  <div className="flex flex-wrap items-center gap-2">
-                    <span className="text-[10px] text-slate-500 font-mono uppercase">Public WebSDRs:</span>
                     <button
                       type="button"
-                      onClick={() => handleSaveStreamUrl('http://websdr.ewi.utwente.nl:8901/')}
-                      className="px-2 py-1 bg-slate-800/50 hover:bg-green-500/20 border border-slate-700 hover:border-green-500/40 rounded text-[10px] font-mono text-slate-300 hover:text-green-300 transition-colors"
-                      title="University of Twente WebSDR - Netherlands (HF/VHF)"
+                      onClick={() => handleSaveStreamUrl('http://relay.broadcastify.com/510267192')}
+                      className="px-2 py-1 bg-slate-800/50 hover:bg-blue-500/20 border border-slate-700 hover:border-blue-500/40 rounded text-[10px] font-mono text-slate-300 hover:text-blue-300 transition-colors"
+                      title="San Francisco Police/Fire"
                     >
-                      🇳🇱 Twente WebSDR
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => handleSaveStreamUrl('http://sdr.websdrmaasbree.nl:8901/')}
-                      className="px-2 py-1 bg-slate-800/50 hover:bg-green-500/20 border border-slate-700 hover:border-green-500/40 rounded text-[10px] font-mono text-slate-300 hover:text-green-300 transition-colors"
-                      title="Maasbree WebSDR - Netherlands (HF)"
-                    >
-                      🇳🇱 Maasbree WebSDR
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => handleSaveStreamUrl('http://rx.linkfanel.net:8073/')}
-                      className="px-2 py-1 bg-slate-800/50 hover:bg-green-500/20 border border-slate-700 hover:border-green-500/40 rounded text-[10px] font-mono text-slate-300 hover:text-green-300 transition-colors"
-                      title="LinkFanel WebSDR - Sweden"
-                    >
-                      🇸🇪 Sweden WebSDR
+                      🚔 SF Police
                     </button>
                   </div>
                   <div className="text-[10px] text-slate-500 mt-1">
-                    💡 Auto-proxied for CORS. Paste ANY WebSDR or scanner URL above - it works automatically!
+                    💡 Auto-proxied for CORS. Works with direct audio streams (MP3, M3U8, Icecast). WebSDR sites need their own interface.
                   </div>
                 </div>
 
