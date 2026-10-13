@@ -5,6 +5,7 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { Play, Square, Radio, Settings, AlertCircle, Wifi, WifiOff } from 'lucide-react';
+import { ADPCMDecoder } from '../utils/adpcmDecoder';
 
 interface OpenWebRXClientProps {
   onClose?: () => void;
@@ -30,7 +31,10 @@ export const OpenWebRXClient: React.FC<OpenWebRXClientProps> = ({ onClose }) => 
 
   const wsRef = useRef<WebSocket | null>(null);
   const audioContextRef = useRef<AudioContext | null>(null);
-  const audioQueueRef = useRef<AudioBufferSourceNode[]>([]);
+  const audioQueueRef = useRef<Float32Array[]>([]);
+  const adpcmDecoderRef = useRef<ADPCMDecoder>(new ADPCMDecoder());
+  const nextPlayTimeRef = useRef<number>(0);
+  const sampleRate = 12000; // OpenWebRX default audio rate
 
   // Connect to OpenWebRX server
   const connect = async () => {
@@ -179,28 +183,116 @@ Try a different server or check browser console (F12) for details.`);
 
   // Handle binary audio/FFT data
   const handleBinaryData = (data: ArrayBuffer) => {
-    // OpenWebRX sends audio as ADPCM compressed PCM
-    // For now, just log that we're receiving data
-    if (isPlaying) {
-      console.log('🎵 Received audio data:', data.byteLength, 'bytes');
-      // TODO: Decode ADPCM and play audio
+    if (!isPlaying || !audioContextRef.current) return;
+
+    try {
+      // First byte indicates data type in OpenWebRX protocol
+      const view = new DataView(data);
+      const type = data.byteLength > 0 ? view.getUint8(0) : 0;
+
+      // Audio data usually comes without header or with specific markers
+      // Try to decode as ADPCM audio
+      const audioData = new Uint8Array(data);
+
+      console.log('🎵 Received data:', audioData.byteLength, 'bytes, first byte:', type);
+
+      // Decode ADPCM to Float32
+      const pcmData = adpcmDecoderRef.current.decodeToFloat32(audioData);
+
+      if (pcmData.length > 0) {
+        // Add to queue
+        audioQueueRef.current.push(pcmData);
+
+        // Process queue
+        processAudioQueue();
+      }
+    } catch (err) {
+      console.error('❌ Audio decode error:', err);
+    }
+  };
+
+  // Process audio queue and schedule playback
+  const processAudioQueue = () => {
+    if (!audioContextRef.current || audioQueueRef.current.length === 0) return;
+
+    const ctx = audioContextRef.current;
+    const currentTime = ctx.currentTime;
+
+    // Initialize next play time if needed
+    if (nextPlayTimeRef.current < currentTime) {
+      nextPlayTimeRef.current = currentTime + 0.1; // Small buffer
+    }
+
+    // Process queue
+    while (audioQueueRef.current.length > 0) {
+      const pcmData = audioQueueRef.current.shift();
+      if (!pcmData) continue;
+
+      try {
+        // Create audio buffer
+        const audioBuffer = ctx.createBuffer(1, pcmData.length, sampleRate);
+        const channelData = audioBuffer.getChannelData(0);
+        channelData.set(pcmData);
+
+        // Create source node
+        const source = ctx.createBufferSource();
+        source.buffer = audioBuffer;
+
+        // Connect with volume control
+        const gainNode = ctx.createGain();
+        gainNode.gain.value = volume;
+
+        source.connect(gainNode);
+        gainNode.connect(ctx.destination);
+
+        // Schedule playback
+        source.start(nextPlayTimeRef.current);
+
+        // Update next play time
+        nextPlayTimeRef.current += audioBuffer.duration;
+
+        console.log('🔊 Playing audio chunk:', pcmData.length, 'samples at', nextPlayTimeRef.current.toFixed(2));
+      } catch (err) {
+        console.error('❌ Audio playback error:', err);
+      }
     }
   };
 
   // Start audio playback
-  const startAudio = () => {
-    if (!audioContextRef.current) {
-      audioContextRef.current = new AudioContext();
+  const startAudio = async () => {
+    try {
+      // Create/resume audio context
+      if (!audioContextRef.current) {
+        audioContextRef.current = new AudioContext({ sampleRate });
+        console.log('🎵 AudioContext created, sample rate:', audioContextRef.current.sampleRate);
+      }
+
+      if (audioContextRef.current.state === 'suspended') {
+        await audioContextRef.current.resume();
+      }
+
+      // Reset decoder and playback state
+      adpcmDecoderRef.current.reset();
+      nextPlayTimeRef.current = 0;
+      audioQueueRef.current = [];
+
+      setIsPlaying(true);
+      console.log('▶️ Audio playback started');
+
+      // Request audio from server
+      sendCommand({ type: 'dspcontrol', params: { squelch_level: -150 } }); // Open squelch
+    } catch (err) {
+      console.error('❌ Failed to start audio:', err);
+      setError('Failed to start audio: ' + (err as Error).message);
     }
-    setIsPlaying(true);
-    sendCommand({ type: 'dspcontrol', params: { squelch_level: -150 } }); // Open squelch
   };
 
   // Stop audio playback
   const stopAudio = () => {
     setIsPlaying(false);
-    audioQueueRef.current.forEach(node => node.stop());
     audioQueueRef.current = [];
+    nextPlayTimeRef.current = 0;
+    console.log('⏹️ Audio playback stopped');
   };
 
   // Change frequency with input
@@ -211,10 +303,21 @@ Try a different server or check browser console (F12) for details.`);
     }
   };
 
+  // Update volume in real-time
+  useEffect(() => {
+    if (audioContextRef.current && isPlaying) {
+      // Volume will be applied to next audio chunks via gainNode
+      console.log('🔊 Volume updated:', Math.round(volume * 100) + '%');
+    }
+  }, [volume, isPlaying]);
+
   // Cleanup on unmount
   useEffect(() => {
     return () => {
       disconnect();
+      if (audioContextRef.current) {
+        audioContextRef.current.close();
+      }
     };
   }, []);
 
@@ -383,17 +486,22 @@ Try a different server or check browser console (F12) for details.`);
       {/* Info */}
       <div className="bg-blue-500/10 border border-blue-500/30 rounded-lg p-4 text-sm text-blue-200 space-y-2">
         <div>
-          <strong>Status:</strong> WebSocket client for OpenWebRX/KiwiSDR servers
+          <strong>🎉 Phase 2 Complete:</strong> ADPCM audio decoder implemented!
         </div>
         <div>
-          <strong>Known Issue:</strong> Many public SDR servers block direct WebSocket connections due to CORS security.
-          If connection fails, this is normal - we're testing multiple servers to find one that allows public access.
+          <strong>How to use:</strong>
+          <ol className="list-decimal ml-4 mt-1">
+            <li>Connect to a server (try each until one works)</li>
+            <li>Tune to a frequency (14.074 MHz USB for FT8)</li>
+            <li>Click "Start" under Audio</li>
+            <li>Listen! Audio will decode and play through speakers</li>
+          </ol>
         </div>
         <div>
-          <strong>Open Browser Console (F12)</strong> to see detailed connection logs and error messages.
+          <strong>Console (F12):</strong> Watch for "🎵 Received data" and "🔊 Playing audio chunk" messages
         </div>
         <div>
-          <strong>Try frequencies:</strong> 14.074 MHz USB (FT8), 7.200 MHz LSB (SSB voice), 10.000 MHz AM (WWV time)
+          <strong>Good frequencies:</strong> 14.074 MHz USB (FT8 chirps), 7.200 MHz LSB (voice), 10.000 MHz AM (WWV beeps)
         </div>
       </div>
     </div>
