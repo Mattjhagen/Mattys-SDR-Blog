@@ -68,23 +68,27 @@ export const OpenWebRXClient: React.FC<OpenWebRXClientProps> = ({ onClose }) => 
         setIsConnected(true);
         setIsConnecting(false);
 
-        // Send initial configuration (OpenWebRX format)
-        console.log('📤 Sending initial config...');
-        sendCommand({
-          type: 'connectionproperties',
-          params: {
-            output_rate: 12000,
-            fft_size: 4096,
-            audio_compression: 'adpcm',
-            fft_compression: 'adpcm'
-          }
-        });
+        // KiwiSDR initialization sequence
+        console.log('📤 Sending KiwiSDR initialization...');
 
-        // Set frequency and mode
-        setTimeout(() => {
-          tuneFrequency(frequency);
-          setDemodulator(mode);
-        }, 500);
+        // Step 1: Authentication (public server, no password)
+        sendKiwiCommand('SET auth t=kiwi p=#');
+
+        // Step 2: Set zoom/span
+        sendKiwiCommand('SET zoom=0 start=0');
+
+        // Step 3: Set waterfall range
+        sendKiwiCommand('SET maxdb=0 mindb=-100');
+
+        // Step 4: Set initial frequency and mode
+        const freqKhz = Math.floor(frequency / 1000);
+        sendKiwiCommand(`SET mod=${mode} low_cut=300 high_cut=2700 freq=${freqKhz}`);
+
+        // Step 5: Request audio streaming
+        sendKiwiCommand('SET squelch=0 max=0');
+        sendKiwiCommand('SET audio');
+
+        console.log('✅ KiwiSDR initialized - audio stream should start');
       };
 
       ws.onmessage = (event) => {
@@ -136,29 +140,25 @@ Try a different server or check browser console (F12) for details.`);
     setIsPlaying(false);
   };
 
-  // Send command to server
-  const sendCommand = (cmd: any) => {
+  // Send KiwiSDR text command
+  const sendKiwiCommand = (cmd: string) => {
     if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
-      wsRef.current.send(JSON.stringify(cmd));
+      wsRef.current.send(cmd);
       console.log('📤 Sent:', cmd);
     }
   };
 
-  // Tune to frequency
+  // Tune to frequency (KiwiSDR format)
   const tuneFrequency = (freq: number) => {
     setFrequency(freq);
-    sendCommand({
-      type: 'dspcontrol',
-      params: { frequency: freq }
-    });
+    const freqKhz = Math.floor(freq / 1000);
+    sendKiwiCommand(`SET mod=${mode} low_cut=300 high_cut=2700 freq=${freqKhz}`);
   };
 
-  // Set demodulator mode
+  // Set demodulator mode (KiwiSDR format)
   const setDemodulator = (demod: string) => {
-    sendCommand({
-      type: 'dspcontrol',
-      params: { demodulator: demod }
-    });
+    const freqKhz = Math.floor(frequency / 1000);
+    sendKiwiCommand(`SET mod=${demod} low_cut=300 high_cut=2700 freq=${freqKhz}`);
   };
 
   // Handle incoming WebSocket messages
@@ -186,25 +186,45 @@ Try a different server or check browser console (F12) for details.`);
     if (!isPlaying || !audioContextRef.current) return;
 
     try {
-      // First byte indicates data type in OpenWebRX protocol
       const view = new DataView(data);
-      const type = data.byteLength > 0 ? view.getUint8(0) : 0;
 
-      // Audio data usually comes without header or with specific markers
-      // Try to decode as ADPCM audio
-      const audioData = new Uint8Array(data);
+      // KiwiSDR format: First 3 bytes are header
+      // Byte 0: 'S' (0x53) for sound
+      // Byte 1: flags
+      // Byte 2: sequence number
+      // Rest: ADPCM audio data
 
-      console.log('🎵 Received data:', audioData.byteLength, 'bytes, first byte:', type);
+      if (data.byteLength < 4) {
+        console.log('⚠️ Packet too small:', data.byteLength, 'bytes');
+        return;
+      }
 
-      // Decode ADPCM to Float32
-      const pcmData = adpcmDecoderRef.current.decodeToFloat32(audioData);
+      const firstByte = view.getUint8(0);
 
-      if (pcmData.length > 0) {
-        // Add to queue
-        audioQueueRef.current.push(pcmData);
+      // Check if this is KiwiSDR sound data (starts with 'S' = 0x53)
+      if (firstByte === 0x53 || firstByte === 0x73) {
+        // KiwiSDR audio packet
+        const flags = view.getUint8(1);
+        const sequence = view.getUint8(2);
 
-        // Process queue
-        processAudioQueue();
+        // Audio data starts at byte 3
+        const audioData = new Uint8Array(data, 3);
+
+        console.log('🎵 KiwiSDR audio:', audioData.byteLength, 'bytes, seq:', sequence, 'flags:', flags.toString(16));
+
+        // Decode ADPCM to Float32
+        const pcmData = adpcmDecoderRef.current.decodeToFloat32(audioData);
+
+        if (pcmData.length > 0) {
+          // Add to queue
+          audioQueueRef.current.push(pcmData);
+
+          // Process queue
+          processAudioQueue();
+        }
+      } else {
+        // Unknown packet type
+        console.log('📦 Received packet:', data.byteLength, 'bytes, type:', firstByte.toString(16));
       }
     } catch (err) {
       console.error('❌ Audio decode error:', err);
@@ -279,8 +299,9 @@ Try a different server or check browser console (F12) for details.`);
       setIsPlaying(true);
       console.log('▶️ Audio playback started');
 
-      // Request audio from server
-      sendCommand({ type: 'dspcontrol', params: { squelch_level: -150 } }); // Open squelch
+      // KiwiSDR audio is already streaming from initialization
+      // Just need to open squelch
+      sendKiwiCommand('SET squelch=0 max=0');
     } catch (err) {
       console.error('❌ Failed to start audio:', err);
       setError('Failed to start audio: ' + (err as Error).message);
