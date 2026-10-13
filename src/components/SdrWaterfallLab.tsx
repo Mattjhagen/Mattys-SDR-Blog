@@ -1,11 +1,12 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { 
-  Volume2, VolumeX, Play, Square, Radio, HelpCircle, Terminal, 
-  Settings, Disc, Download, AlertCircle, Wifi, WifiOff, Check, 
+import {
+  Volume2, VolumeX, Play, Square, Radio, HelpCircle, Terminal,
+  Settings, Disc, Download, AlertCircle, Wifi, WifiOff, Check,
   Maximize2, Activity, ShieldCheck, Sparkles, Sliders, ExternalLink
 } from 'lucide-react';
 import { sdrAudio } from '../utils/sdrAudio';
 import { LinuxSetupGuideModal } from './LinuxSetupGuideModal';
+import { OpenWebRXClient } from './OpenWebRXClient';
 
 interface SignalPeak {
   freqHz: number;
@@ -72,8 +73,8 @@ const STREAM_STORAGE_KEY = 'ham_radio_sdr_stream_url_v1';
 const STATION_INFO_STORAGE_KEY = 'ham_radio_live_sdr_station_info_v1';
 
 export const SdrWaterfallLab: React.FC = () => {
-  // Operating Mode: 'live' = physical RTL-SDR v4 via SDR++, 'simulator' = synthetic RF band practice
-  const [labMode, setLabMode] = useState<'live' | 'simulator'>('live');
+  // Operating Mode: 'live' = physical RTL-SDR v4 via SDR++, 'remote' = OpenWebRX/KiwiSDR, 'simulator' = synthetic RF band practice
+  const [labMode, setLabMode] = useState<'live' | 'remote' | 'simulator'>('live');
 
   // --- LIVE RTL-SDR STATION STREAM STATE ---
   const [streamUrl, setStreamUrl] = useState<string>(() => {
@@ -783,6 +784,18 @@ export const SdrWaterfallLab: React.FC = () => {
             >
               <span className={`w-2 h-2 rounded-full ${isLiveConnected ? 'bg-red-600 animate-ping' : 'bg-amber-600'}`} />
               <span>Live RTL-SDR v4</span>
+            </button>
+            <button
+              onClick={() => setLabMode('remote')}
+              className={`px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition-colors ${
+                labMode === 'remote'
+                  ? 'bg-amber-400 text-slate-950 font-bold shadow-sm'
+                  : 'text-slate-400 hover:text-white'
+              }`}
+              title="Connect to remote SDR via WebSocket"
+            >
+              <Wifi className="w-3.5 h-3.5" />
+              <span>Remote SDR</span>
             </button>
             <button
               onClick={() => setLabMode('simulator')}
@@ -1517,6 +1530,15 @@ export const SdrWaterfallLab: React.FC = () => {
               })}
             </div>
           </div>
+        </div>
+      )}
+
+      {/* ======================================================== */}
+      {/* MODE 3: REMOTE SDR (OpenWebRX/KiwiSDR) */}
+      {/* ======================================================== */}
+      {labMode === 'remote' && (
+        <div className="animate-in fade-in duration-150">
+          <OpenWebRXClient />
         </div>
       )}
 

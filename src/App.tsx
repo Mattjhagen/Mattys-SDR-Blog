@@ -15,6 +15,7 @@ import { BlogArchiveView } from './components/BlogArchiveView';
 import { ContactLogbookMap } from './components/ContactLogbookMap';
 import { SdrWaterfallLab } from './components/SdrWaterfallLab';
 import { PoliceScanner } from './components/PoliceScanner';
+import { OpenWebRXClient } from './components/OpenWebRXClient';
 import { SolarWidget } from './components/SolarWidget';
 import { MorseToolModal } from './components/MorseToolModal';
 import { GridCalculatorModal } from './components/GridCalculatorModal';
