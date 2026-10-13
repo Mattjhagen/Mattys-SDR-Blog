@@ -11,12 +11,12 @@ interface OpenWebRXClientProps {
   onClose?: () => void;
 }
 
-// Working OpenWebRX servers (verified online)
+// WebSDR.org servers (definitely online, different protocol)
 const PUBLIC_SERVERS = [
-  { name: 'OpenWebRX.de', url: 'ws://sdr.openwebrx.de:8073/ws/', location: 'Germany', bands: '0-30 MHz', type: 'openwebrx' },
-  { name: 'KA7OEI WebSDR', url: 'ws://websdr.katyusha.com:8073/ws/', location: 'Utah, USA', bands: '0-30 MHz', type: 'openwebrx' },
-  { name: 'Hack Green SDR', url: 'ws://hackgreensdr.org:8073/ws/', location: 'UK', bands: '0-30 MHz', type: 'openwebrx' },
-  { name: 'SDR Maxi', url: 'ws://sdr-maxi.ddns.net:8073/ws/', location: 'France', bands: '0-30 MHz', type: 'openwebrx' },
+  { name: 'WebSDR Twente', url: 'ws://websdr.ewi.utwente.nl:8901/~~websocket~~', location: 'Netherlands', bands: '0-30 MHz', type: 'websdr' },
+  { name: 'WebSDR Japan', url: 'ws://sdr.jh1phs.net:8901/~~websocket~~', location: 'Japan', bands: '0-30 MHz', type: 'websdr' },
+  { name: 'WebSDR Brazil', url: 'ws://py2ckn.ddns.net:8901/~~websocket~~', location: 'Brazil', bands: '0-30 MHz', type: 'websdr' },
+  { name: 'WebSDR Australia', url: 'ws://websdr.vk2dds.net:8901/~~websocket~~', location: 'Australia', bands: '0-30 MHz', type: 'websdr' },
 ];
 
 export const OpenWebRXClient: React.FC<OpenWebRXClientProps> = ({ onClose }) => {
@@ -73,44 +73,24 @@ export const OpenWebRXClient: React.FC<OpenWebRXClientProps> = ({ onClose }) => 
         setIsConnected(true);
         setIsConnecting(false);
 
-        // OpenWebRX initialization sequence
-        console.log('📤 Sending OpenWebRX initialization...');
+        // WebSDR initialization sequence
+        console.log('📤 Sending WebSDR initialization...');
 
-        // Step 1: Set connection properties
-        sendCommand({
-          type: 'connectionproperties',
-          params: {
-            output_rate: 12000,
-            fft_size: 4096,
-            audio_compression: 'none', // Start with no compression
-            fft_compression: 'none'
-          }
-        });
+        // WebSDR uses simple text commands
+        sendTextCommand(`SET auth t=kiwi p=public`);
 
-        // Step 2: Set frequency and mode
         setTimeout(() => {
-          sendCommand({
-            type: 'dspcontrol',
-            params: {
-              method: 'start'
-            }
-          });
+          // Set frequency (in Hz)
+          sendTextCommand(`SET freq=${frequency}`);
 
-          sendCommand({
-            type: 'dspcontrol',
-            params: {
-              params: {
-                frequency: frequency,
-                mod: mode,
-                low_cut: 300,
-                high_cut: 2700,
-                squelch_level: -150
-              }
-            }
-          });
+          // Set mode
+          sendTextCommand(`SET mod=${mode}`);
+
+          // Request audio stream
+          sendTextCommand('SET audio');
+
+          console.log('✅ WebSDR initialized - audio stream should start');
         }, 500);
-
-        console.log('✅ OpenWebRX initialized - audio stream should start');
       };
 
       ws.onmessage = (event) => {
@@ -162,45 +142,25 @@ Try a different server or check browser console (F12) for details.`);
     setIsPlaying(false);
   };
 
-  // Send OpenWebRX JSON command
-  const sendCommand = (cmd: any) => {
+  // Send WebSDR text command
+  const sendTextCommand = (cmd: string) => {
     if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
-      wsRef.current.send(JSON.stringify(cmd));
+      wsRef.current.send(cmd);
       console.log('📤 Sent:', cmd);
     }
   };
 
-  // Tune to frequency (OpenWebRX format)
+  // Tune to frequency (WebSDR format)
   const tuneFrequency = (freq: number) => {
     setFrequency(freq);
-    sendCommand({
-      type: 'dspcontrol',
-      params: {
-        params: {
-          frequency: freq,
-          mod: mode,
-          low_cut: 300,
-          high_cut: 2700,
-          squelch_level: -150
-        }
-      }
-    });
+    sendTextCommand(`SET freq=${freq}`);
+    sendTextCommand(`SET mod=${mode}`);
   };
 
-  // Set demodulator mode (OpenWebRX format)
+  // Set demodulator mode (WebSDR format)
   const setDemodulator = (demod: string) => {
-    sendCommand({
-      type: 'dspcontrol',
-      params: {
-        params: {
-          frequency: frequency,
-          mod: demod,
-          low_cut: 300,
-          high_cut: 2700,
-          squelch_level: -150
-        }
-      }
-    });
+    sendTextCommand(`SET freq=${frequency}`);
+    sendTextCommand(`SET mod=${demod}`);
   };
 
   // Handle incoming WebSocket messages
