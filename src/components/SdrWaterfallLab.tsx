@@ -1063,9 +1063,12 @@ export const SdrWaterfallLab: React.FC = () => {
                       🔍 Browse All SDRs <ExternalLink className="w-3 h-3" />
                     </a>
                   </div>
-                  <div className="text-[10px] text-slate-400 mt-1 space-y-0.5">
-                    <div>💡 Audio streams: Paste URL above to hear with waterfall visualization</div>
-                    <div>🎛️ Remote SDRs: Click to open full interface in new tab (tune frequencies, change modes, etc.)</div>
+                  <div className="text-[10px] text-slate-400 mt-1 p-2 bg-blue-500/5 border border-blue-500/20 rounded space-y-0.5">
+                    <div className="font-bold text-blue-300">📡 Want to tune frequencies?</div>
+                    <div>1. Click "🔍 Browse All SDRs" above</div>
+                    <div>2. Pick a WebSDR from the list (e.g., Twente, Maasbree)</div>
+                    <div>3. Opens in new tab with FULL tuning interface (waterfall, frequency control, mode selection)</div>
+                    <div className="pt-1 border-t border-blue-500/20 mt-1">💡 Audio streams in input above are for fixed-frequency listening only</div>
                   </div>
                 </div>
 
