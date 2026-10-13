@@ -80,13 +80,17 @@ export const OpenWebRXClient: React.FC<OpenWebRXClientProps> = ({ onClose }) => 
         // Step 3: Set waterfall range
         sendKiwiCommand('SET maxdb=0 mindb=-100');
 
-        // Step 4: Set initial frequency and mode
+        // Step 4: Select receiver channel
+        sendKiwiCommand('SET gen=0 mix=-1');
+
+        // Step 5: Set initial frequency and mode
         const freqKhz = Math.floor(frequency / 1000);
         sendKiwiCommand(`SET mod=${mode} low_cut=300 high_cut=2700 freq=${freqKhz}`);
 
-        // Step 5: Request audio streaming
+        // Step 6: Request audio streaming
         sendKiwiCommand('SET squelch=0 max=0');
-        sendKiwiCommand('SET audio');
+        sendKiwiCommand('SET agc=1 hang=0 thresh=-100 slope=6 decay=1000');
+        sendKiwiCommand('SET compression=0');
 
         console.log('✅ KiwiSDR initialized - audio stream should start');
       };
@@ -164,16 +168,21 @@ Try a different server or check browser console (F12) for details.`);
   // Handle incoming WebSocket messages
   const handleMessage = (data: any) => {
     if (typeof data === 'string') {
-      // JSON message
-      try {
-        const msg = JSON.parse(data);
-        console.log('📥 Received:', msg.type || msg);
+      // Text message (KiwiSDR sends plain text responses)
+      console.log('📥 Received text:', data.substring(0, 200));
 
-        if (msg.type === 'config') {
-          console.log('📡 Server config:', msg.value);
+      // Try to parse as JSON
+      if (data.startsWith('{')) {
+        try {
+          const msg = JSON.parse(data);
+          console.log('📥 JSON:', msg.type || msg);
+
+          if (msg.type === 'config') {
+            console.log('📡 Server config:', msg.value);
+          }
+        } catch (e) {
+          console.error('Failed to parse JSON:', e);
         }
-      } catch (e) {
-        console.error('Failed to parse JSON:', e);
       }
     } else {
       // Binary data (audio or FFT)
@@ -183,16 +192,8 @@ Try a different server or check browser console (F12) for details.`);
 
   // Handle binary audio/FFT data
   const handleBinaryData = (data: ArrayBuffer) => {
-    if (!isPlaying || !audioContextRef.current) return;
-
     try {
       const view = new DataView(data);
-
-      // KiwiSDR format: First 3 bytes are header
-      // Byte 0: 'S' (0x53) for sound
-      // Byte 1: flags
-      // Byte 2: sequence number
-      // Rest: ADPCM audio data
 
       if (data.byteLength < 4) {
         console.log('⚠️ Packet too small:', data.byteLength, 'bytes');
@@ -201,8 +202,17 @@ Try a different server or check browser console (F12) for details.`);
 
       const firstByte = view.getUint8(0);
 
-      // Check if this is KiwiSDR sound data (starts with 'S' = 0x53)
+      // Log ALL binary packets to debug
+      console.log('📦 Binary packet:', data.byteLength, 'bytes, first byte:', firstByte.toString(16),
+                  'char:', String.fromCharCode(firstByte));
+
+      // Check if this is KiwiSDR sound data (starts with 'S' = 0x53 or 's' = 0x73)
       if (firstByte === 0x53 || firstByte === 0x73) {
+        if (!isPlaying || !audioContextRef.current) {
+          console.log('⚠️ Audio packet received but playback not started');
+          return;
+        }
+
         // KiwiSDR audio packet
         const flags = view.getUint8(1);
         const sequence = view.getUint8(2);
@@ -222,12 +232,14 @@ Try a different server or check browser console (F12) for details.`);
           // Process queue
           processAudioQueue();
         }
+      } else if (firstByte === 0x57 || firstByte === 0x77) { // 'W' or 'w' - waterfall
+        console.log('🌈 Waterfall data:', data.byteLength, 'bytes');
       } else {
         // Unknown packet type
-        console.log('📦 Received packet:', data.byteLength, 'bytes, type:', firstByte.toString(16));
+        console.log('❓ Unknown packet type:', firstByte.toString(16), 'size:', data.byteLength);
       }
     } catch (err) {
-      console.error('❌ Audio decode error:', err);
+      console.error('❌ Binary data error:', err);
     }
   };
 
