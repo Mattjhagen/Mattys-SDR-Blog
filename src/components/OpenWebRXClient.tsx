@@ -10,12 +10,12 @@ interface OpenWebRXClientProps {
   onClose?: () => void;
 }
 
-// Known public KiwiSDR servers (better for WebSocket access)
+// Direct KiwiSDR servers (no redirects)
 const PUBLIC_SERVERS = [
-  { name: 'KiwiSDR Japan', url: 'ws://nrt.proxy.kiwisdr.com:8073/', location: 'Tokyo, Japan', bands: '0-32 MHz' },
-  { name: 'KiwiSDR California', url: 'ws://kiwisdr.wsprdaemon.org:8073/', location: 'California, USA', bands: '0-30 MHz' },
-  { name: 'KiwiSDR Netherlands', url: 'ws://83.162.110.200:8073/', location: 'Netherlands', bands: '0-30 MHz' },
-  { name: 'OpenWebRX Test', url: 'ws://websdr.r4d.ee:8073/ws/', location: 'Estonia (OpenWebRX)', bands: '0-30 MHz' },
+  { name: 'KiwiSDR ZL/VK4', url: 'ws://kiwisdr.duckdns.org:8073/', location: 'New Zealand', bands: '0-30 MHz' },
+  { name: 'KiwiSDR Twente', url: 'ws://websdr.ewi.utwente.nl:8901/', location: 'Netherlands', bands: '0-30 MHz' },
+  { name: 'KiwiSDR W6REK', url: 'ws://w6rek.zapto.org:8073/', location: 'California, USA', bands: '0-30 MHz' },
+  { name: 'OpenWebRX sdr.hu', url: 'ws://hu.sdr.hu:8073/ws/', location: 'Hungary', bands: '0-30 MHz' },
 ];
 
 export const OpenWebRXClient: React.FC<OpenWebRXClientProps> = ({ onClose }) => {

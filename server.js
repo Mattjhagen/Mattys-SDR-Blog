@@ -33,8 +33,11 @@ wss.on('connection', (clientWs, req) => {
   console.log('🔌 Proxying WebSocket to:', targetUrl);
 
   try {
-    // Connect to the actual SDR server
-    const sdrWs = new WebSocket(targetUrl);
+    // Connect to the actual SDR server with redirect following
+    const sdrWs = new WebSocket(targetUrl, {
+      followRedirects: true,
+      maxRedirects: 3
+    });
     sdrWs.binaryType = 'arraybuffer';
 
     // Forward messages: client -> SDR
