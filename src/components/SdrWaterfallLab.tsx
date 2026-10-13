@@ -1004,7 +1004,7 @@ export const SdrWaterfallLab: React.FC = () => {
                       type="button"
                       onClick={() => handleSaveStreamUrl('http://ice1.somafm.com/groovesalad-128-mp3')}
                       className="px-2 py-1 bg-slate-800/50 hover:bg-amber-500/20 border border-slate-700 hover:border-amber-500/40 rounded text-[10px] font-mono text-slate-300 hover:text-amber-300 transition-colors"
-                      title="Test music stream - SomaFM Groove Salad (always works!)"
+                      title="Test music stream - SomaFM Groove Salad"
                     >
                       🎵 SomaFM Music
                     </button>
@@ -1020,7 +1020,7 @@ export const SdrWaterfallLab: React.FC = () => {
                       type="button"
                       onClick={() => handleSaveStreamUrl('http://radio.weatherusa.net/NWR/KIH61.mp3')}
                       className="px-2 py-1 bg-slate-800/50 hover:bg-yellow-500/20 border border-slate-700 hover:border-yellow-500/40 rounded text-[10px] font-mono text-slate-300 hover:text-yellow-300 transition-colors"
-                      title="NOAA Weather Radio - Omaha KIH61"
+                      title="NOAA Weather Radio"
                     >
                       🌤️ NOAA Weather
                     </button>
@@ -1033,8 +1033,39 @@ export const SdrWaterfallLab: React.FC = () => {
                       📻 BBC World
                     </button>
                   </div>
-                  <div className="text-[10px] text-slate-500 mt-1">
-                    💡 Auto-proxied for CORS. For scanner feeds, visit <a href="https://broadcastify.com" target="_blank" rel="noopener" className="text-blue-400 hover:underline">broadcastify.com</a> and find stream URLs for your area.
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="text-[10px] text-slate-500 font-mono uppercase">Remote SDRs (Tunable):</span>
+                    <a
+                      href="http://websdr.ewi.utwente.nl:8901/"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="px-2 py-1 bg-green-500/10 hover:bg-green-500/20 border border-green-700 hover:border-green-500/40 rounded text-[10px] font-mono text-green-300 hover:text-green-200 transition-colors flex items-center gap-1"
+                      title="University of Twente WebSDR - HF/VHF receiver in Netherlands"
+                    >
+                      📡 Twente WebSDR <ExternalLink className="w-3 h-3" />
+                    </a>
+                    <a
+                      href="http://kiwisdr.com/public/"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="px-2 py-1 bg-green-500/10 hover:bg-green-500/20 border border-green-700 hover:border-green-500/40 rounded text-[10px] font-mono text-green-300 hover:text-green-200 transition-colors flex items-center gap-1"
+                      title="KiwiSDR Network - Worldwide HF receivers"
+                    >
+                      🌍 KiwiSDR Network <ExternalLink className="w-3 h-3" />
+                    </a>
+                    <a
+                      href="http://websdr.org/"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="px-2 py-1 bg-green-500/10 hover:bg-green-500/20 border border-green-700 hover:border-green-500/40 rounded text-[10px] font-mono text-green-300 hover:text-green-200 transition-colors flex items-center gap-1"
+                      title="WebSDR.org - List of all public WebSDRs"
+                    >
+                      🔍 Browse All SDRs <ExternalLink className="w-3 h-3" />
+                    </a>
+                  </div>
+                  <div className="text-[10px] text-slate-400 mt-1 space-y-0.5">
+                    <div>💡 Audio streams: Paste URL above to hear with waterfall visualization</div>
+                    <div>🎛️ Remote SDRs: Click to open full interface in new tab (tune frequencies, change modes, etc.)</div>
                   </div>
                 </div>
 
