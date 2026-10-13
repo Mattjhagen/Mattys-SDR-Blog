@@ -6,12 +6,79 @@
 import express from 'express';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { WebSocketServer, WebSocket } from 'ws';
+import { createServer } from 'http';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express();
 const PORT = process.env.PORT || 3001;
+
+// Create HTTP server for both Express and WebSocket
+const server = createServer(app);
+
+// WebSocket proxy for SDR connections
+const wss = new WebSocketServer({ server, path: '/sdr-ws' });
+
+wss.on('connection', (clientWs, req) => {
+  const targetUrl = new URL(req.url, `http://${req.headers.host}`).searchParams.get('target');
+
+  if (!targetUrl) {
+    console.error('❌ No target URL provided');
+    clientWs.close(1008, 'No target URL');
+    return;
+  }
+
+  console.log('🔌 Proxying WebSocket to:', targetUrl);
+
+  try {
+    // Connect to the actual SDR server
+    const sdrWs = new WebSocket(targetUrl);
+    sdrWs.binaryType = 'arraybuffer';
+
+    // Forward messages: client -> SDR
+    clientWs.on('message', (data) => {
+      if (sdrWs.readyState === WebSocket.OPEN) {
+        sdrWs.send(data);
+      }
+    });
+
+    // Forward messages: SDR -> client
+    sdrWs.on('message', (data) => {
+      if (clientWs.readyState === WebSocket.OPEN) {
+        clientWs.send(data);
+      }
+    });
+
+    // Handle SDR connection open
+    sdrWs.on('open', () => {
+      console.log('✅ Connected to SDR server');
+    });
+
+    // Handle SDR errors
+    sdrWs.on('error', (err) => {
+      console.error('❌ SDR connection error:', err.message);
+      clientWs.close(1011, 'SDR connection error');
+    });
+
+    // Handle SDR close
+    sdrWs.on('close', (code, reason) => {
+      console.log('🔌 SDR connection closed:', code, reason.toString());
+      clientWs.close(code, reason);
+    });
+
+    // Handle client disconnect
+    clientWs.on('close', () => {
+      console.log('🔌 Client disconnected');
+      sdrWs.close();
+    });
+
+  } catch (err) {
+    console.error('❌ Proxy error:', err);
+    clientWs.close(1011, 'Proxy error');
+  }
+});
 
 // Audio Stream Proxy - forwards HTTP requests and adds CORS headers
 app.get('/api/websdr-proxy', async (req, res) => {
@@ -108,7 +175,8 @@ app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'dist', 'index.html'));
 });
 
-app.listen(PORT, () => {
+server.listen(PORT, () => {
   console.log(`✅ Ham Radio Blog server running on http://localhost:${PORT}`);
   console.log(`📡 Ready to serve your SDR adventures!`);
+  console.log(`🔌 WebSocket proxy available at ws://localhost:${PORT}/sdr-ws`);
 });

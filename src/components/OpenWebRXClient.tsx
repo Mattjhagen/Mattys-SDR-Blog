@@ -38,10 +38,13 @@ export const OpenWebRXClient: React.FC<OpenWebRXClientProps> = ({ onClose }) => 
     setError(null);
 
     try {
-      console.log('🔌 Connecting to:', selectedServer.url);
-      console.log('📊 Location:', window.location.protocol);
+      // Use WebSocket proxy to bypass CORS
+      const proxyUrl = `ws://${window.location.hostname}:${window.location.port || '3001'}/sdr-ws?target=${encodeURIComponent(selectedServer.url)}`;
 
-      const ws = new WebSocket(selectedServer.url);
+      console.log('🔌 Connecting via proxy to:', selectedServer.url);
+      console.log('📡 Proxy URL:', proxyUrl);
+
+      const ws = new WebSocket(proxyUrl);
       wsRef.current = ws;
 
       ws.binaryType = 'arraybuffer';
