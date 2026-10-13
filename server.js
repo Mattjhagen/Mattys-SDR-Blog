@@ -19,7 +19,11 @@ const PORT = process.env.PORT || 3001;
 const server = createServer(app);
 
 // WebSocket proxy for SDR connections
-const wss = new WebSocketServer({ server, path: '/sdr-ws' });
+const wss = new WebSocketServer({
+  server,
+  path: '/sdr-ws',
+  perMessageDeflate: false // Disable compression for binary data
+});
 
 wss.on('connection', (clientWs, req) => {
   const targetUrl = new URL(req.url, `http://${req.headers.host}`).searchParams.get('target');
@@ -55,10 +59,33 @@ wss.on('connection', (clientWs, req) => {
     sdrWs.on('message', (data) => {
       const isText = typeof data === 'string';
       const isBinary = data instanceof Buffer;
-      console.log(`📨 SDR→Client: ${isText ? 'TEXT' : isBinary ? 'BINARY' : 'OTHER'} ${isText ? data.length : isBinary ? data.length : 0} bytes`);
+      console.log(`📨 SDR→Client: ${isText ? 'TEXT' : isBinary ? 'BINARY' : 'OTHER'} ${isText ? data.length : isBinary ? data.length : 0} bytes, clientWs state: ${clientWs.readyState}`);
 
       if (clientWs.readyState === WebSocket.OPEN) {
-        clientWs.send(data);
+        try {
+          if (isBinary) {
+            // Send buffer as binary frame
+            clientWs.send(data, { binary: true }, (err) => {
+              if (err) {
+                console.error('❌ Failed to send binary to client:', err);
+              } else {
+                console.log('✅ Binary sent to client successfully');
+              }
+            });
+          } else {
+            clientWs.send(data, (err) => {
+              if (err) {
+                console.error('❌ Failed to send text to client:', err);
+              } else {
+                console.log('✅ Text sent to client successfully');
+              }
+            });
+          }
+        } catch (err) {
+          console.error('❌ Error sending to client:', err);
+        }
+      } else {
+        console.warn('⚠️ clientWs not open, state:', clientWs.readyState);
       }
     });
 
