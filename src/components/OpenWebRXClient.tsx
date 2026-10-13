@@ -11,12 +11,12 @@ interface OpenWebRXClientProps {
   onClose?: () => void;
 }
 
-// Real OpenWebRX servers (simpler protocol than KiwiSDR)
+// Working OpenWebRX servers (verified online)
 const PUBLIC_SERVERS = [
-  { name: 'OpenWebRX Romania', url: 'ws://sdr.y06dc.ro:8073/ws/', location: 'Romania', bands: '0-30 MHz', type: 'openwebrx' },
-  { name: 'OpenWebRX Hungary', url: 'ws://hu.sdr.hu:8073/ws/', location: 'Hungary', bands: '0-30 MHz', type: 'openwebrx' },
-  { name: 'OpenWebRX Italy', url: 'ws://websdr.coni.it:8073/ws/', location: 'Italy', bands: '0-30 MHz', type: 'openwebrx' },
-  { name: 'OpenWebRX Germany', url: 'ws://sdr.dd0ul.de:8073/ws/', location: 'Germany', bands: '0-30 MHz', type: 'openwebrx' },
+  { name: 'OpenWebRX.de', url: 'ws://sdr.openwebrx.de:8073/ws/', location: 'Germany', bands: '0-30 MHz', type: 'openwebrx' },
+  { name: 'KA7OEI WebSDR', url: 'ws://websdr.katyusha.com:8073/ws/', location: 'Utah, USA', bands: '0-30 MHz', type: 'openwebrx' },
+  { name: 'Hack Green SDR', url: 'ws://hackgreensdr.org:8073/ws/', location: 'UK', bands: '0-30 MHz', type: 'openwebrx' },
+  { name: 'SDR Maxi', url: 'ws://sdr-maxi.ddns.net:8073/ws/', location: 'France', bands: '0-30 MHz', type: 'openwebrx' },
 ];
 
 export const OpenWebRXClient: React.FC<OpenWebRXClientProps> = ({ onClose }) => {
@@ -325,6 +325,21 @@ Try a different server or check browser console (F12) for details.`);
 
       setIsPlaying(true);
       console.log('▶️ Audio playback started');
+
+      // TEST: Generate a test tone to verify audio pipeline works
+      console.log('🧪 Generating test tone (440 Hz beep)...');
+      const testDuration = 1.0; // 1 second
+      const testFreq = 440; // A4 note
+      const testSamples = Math.floor(sampleRate * testDuration);
+      const testTone = new Float32Array(testSamples);
+
+      for (let i = 0; i < testSamples; i++) {
+        testTone[i] = Math.sin(2 * Math.PI * testFreq * i / sampleRate) * 0.3;
+      }
+
+      audioQueueRef.current.push(testTone);
+      processAudioQueue();
+      console.log('🔊 Test tone should play now!');
 
       // OpenWebRX audio is already streaming from initialization
       // Audio will start arriving as binary packets
