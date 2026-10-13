@@ -10,11 +10,12 @@ interface OpenWebRXClientProps {
   onClose?: () => void;
 }
 
-// Known public OpenWebRX servers
+// Known public KiwiSDR servers (better for WebSocket access)
 const PUBLIC_SERVERS = [
-  { name: 'WebSDR Estonia', url: 'ws://websdr.r4d.ee:8073/ws/', location: 'Estonia', bands: '0-30 MHz' },
-  { name: 'OpenWebRX Poland', url: 'ws://sdr.swl.su:8073/ws/', location: 'Poland', bands: '0-30 MHz' },
-  { name: 'SDR Twente', url: 'ws://websdr.ewi.utwente.nl:8901/ws/', location: 'Netherlands', bands: '0-29 MHz' },
+  { name: 'KiwiSDR Japan', url: 'ws://nrt.proxy.kiwisdr.com:8073/', location: 'Tokyo, Japan', bands: '0-32 MHz' },
+  { name: 'KiwiSDR California', url: 'ws://kiwisdr.wsprdaemon.org:8073/', location: 'California, USA', bands: '0-30 MHz' },
+  { name: 'KiwiSDR Netherlands', url: 'ws://83.162.110.200:8073/', location: 'Netherlands', bands: '0-30 MHz' },
+  { name: 'OpenWebRX Test', url: 'ws://websdr.r4d.ee:8073/ws/', location: 'Estonia (OpenWebRX)', bands: '0-30 MHz' },
 ];
 
 export const OpenWebRXClient: React.FC<OpenWebRXClientProps> = ({ onClose }) => {
@@ -38,22 +39,34 @@ export const OpenWebRXClient: React.FC<OpenWebRXClientProps> = ({ onClose }) => 
 
     try {
       console.log('🔌 Connecting to:', selectedServer.url);
+      console.log('📊 Location:', window.location.protocol);
 
       const ws = new WebSocket(selectedServer.url);
       wsRef.current = ws;
 
       ws.binaryType = 'arraybuffer';
 
+      // Timeout if connection takes too long
+      const timeout = setTimeout(() => {
+        if (ws.readyState !== WebSocket.OPEN) {
+          ws.close();
+          setError(`Connection timeout. Server may be offline or blocking connections. URL: ${selectedServer.url}`);
+          setIsConnecting(false);
+        }
+      }, 10000);
+
       ws.onopen = () => {
-        console.log('✅ WebSocket connected!');
+        clearTimeout(timeout);
+        console.log('✅ WebSocket connected! ReadyState:', ws.readyState);
         setIsConnected(true);
         setIsConnecting(false);
 
-        // Send initial configuration
+        // Send initial configuration (OpenWebRX format)
+        console.log('📤 Sending initial config...');
         sendCommand({
           type: 'connectionproperties',
           params: {
-            output_rate: 12000, // Audio sample rate
+            output_rate: 12000,
             fft_size: 4096,
             audio_compression: 'adpcm',
             fft_compression: 'adpcm'
@@ -61,30 +74,47 @@ export const OpenWebRXClient: React.FC<OpenWebRXClientProps> = ({ onClose }) => 
         });
 
         // Set frequency and mode
-        tuneFrequency(frequency);
-        setDemodulator(mode);
+        setTimeout(() => {
+          tuneFrequency(frequency);
+          setDemodulator(mode);
+        }, 500);
       };
 
       ws.onmessage = (event) => {
         handleMessage(event.data);
       };
 
-      ws.onerror = (err) => {
+      ws.onerror = (err: Event) => {
+        clearTimeout(timeout);
         console.error('❌ WebSocket error:', err);
-        setError('Connection failed to ' + selectedServer.name);
+        console.error('❌ Error type:', (err as any).type);
+        console.error('❌ ReadyState:', ws.readyState);
+        setError(`Connection failed: ${selectedServer.name}.
+
+Possible issues:
+• Server is offline or unreachable
+• CORS/security blocking WebSocket connection
+• Wrong WebSocket URL format
+• Server requires authentication
+
+Try a different server or check browser console (F12) for details.`);
         setIsConnecting(false);
         setIsConnected(false);
       };
 
-      ws.onclose = () => {
-        console.log('🔌 WebSocket closed');
+      ws.onclose = (event) => {
+        clearTimeout(timeout);
+        console.log('🔌 WebSocket closed. Code:', event.code, 'Reason:', event.reason);
+        if (event.code !== 1000) {
+          setError(`Connection closed unexpectedly. Code: ${event.code}`);
+        }
         setIsConnected(false);
         setIsPlaying(false);
       };
 
-    } catch (err) {
+    } catch (err: any) {
       console.error('❌ Connection error:', err);
-      setError('Failed to connect to server');
+      setError(`Failed to connect: ${err.message || 'Unknown error'}`);
       setIsConnecting(false);
     }
   };
@@ -348,10 +378,20 @@ export const OpenWebRXClient: React.FC<OpenWebRXClientProps> = ({ onClose }) => 
       )}
 
       {/* Info */}
-      <div className="bg-blue-500/10 border border-blue-500/30 rounded-lg p-4 text-sm text-blue-200">
-        <strong>Status:</strong> WebSocket client connecting to OpenWebRX. Audio decoding in progress...
-        <br />
-        <strong>Try:</strong> 14.074 MHz USB (FT8), 7.200 MHz LSB (SSB voice), 10.000 MHz AM (WWV)
+      <div className="bg-blue-500/10 border border-blue-500/30 rounded-lg p-4 text-sm text-blue-200 space-y-2">
+        <div>
+          <strong>Status:</strong> WebSocket client for OpenWebRX/KiwiSDR servers
+        </div>
+        <div>
+          <strong>Known Issue:</strong> Many public SDR servers block direct WebSocket connections due to CORS security.
+          If connection fails, this is normal - we're testing multiple servers to find one that allows public access.
+        </div>
+        <div>
+          <strong>Open Browser Console (F12)</strong> to see detailed connection logs and error messages.
+        </div>
+        <div>
+          <strong>Try frequencies:</strong> 14.074 MHz USB (FT8), 7.200 MHz LSB (SSB voice), 10.000 MHz AM (WWV time)
+        </div>
       </div>
     </div>
   );
