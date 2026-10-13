@@ -200,6 +200,8 @@ Try a different server or check browser console (F12) for details.`);
 
   // Handle incoming WebSocket messages
   const handleMessage = (data: any) => {
+    console.log('📨 handleMessage called, type:', typeof data, 'isString:', typeof data === 'string', 'size:', data.byteLength || data.length);
+
     if (typeof data === 'string') {
       // Text message (KiwiSDR sends plain text responses)
       console.log('📥 Received text:', data.substring(0, 200));
@@ -219,21 +221,24 @@ Try a different server or check browser console (F12) for details.`);
       }
     } else {
       // Binary data (audio or FFT)
+      console.log('🔀 Routing to handleBinaryData, isPlaying:', isPlaying);
       handleBinaryData(data);
     }
   };
 
   // Handle binary audio/FFT data
   const handleBinaryData = (data: ArrayBuffer) => {
+    console.log('🎯 handleBinaryData CALLED! size:', data.byteLength, 'isPlaying:', isPlaying, 'hasAudioContext:', !!audioContextRef.current);
+
     if (!isPlaying || !audioContextRef.current) {
-      console.log('⚠️ Audio packet received but playback not started, size:', data.byteLength);
+      console.log('⚠️ Audio packet received but playback not started');
       return;
     }
 
     try {
       // OpenWebRX sends raw PCM audio data (16-bit signed integers)
       // No header, just raw audio samples
-      console.log('🎵 Received audio:', data.byteLength, 'bytes');
+      console.log('🎵 Processing audio:', data.byteLength, 'bytes');
 
       // Convert to Int16Array (16-bit PCM)
       const pcm16 = new Int16Array(data);
@@ -244,11 +249,12 @@ Try a different server or check browser console (F12) for details.`);
         floatData[i] = pcm16[i] / 32768.0; // Convert to [-1.0, 1.0]
       }
 
-      console.log('🔊 Decoded', floatData.length, 'samples');
+      console.log('🔊 Decoded', floatData.length, 'samples, first 5:', floatData.slice(0, 5));
 
       if (floatData.length > 0) {
         // Add to queue
         audioQueueRef.current.push(floatData);
+        console.log('📥 Added to queue, queue length:', audioQueueRef.current.length);
 
         // Process queue
         processAudioQueue();
