@@ -53,6 +53,11 @@ export const OpenWebRXClient: React.FC<OpenWebRXClientProps> = ({ onClose }) => 
 
       ws.binaryType = 'arraybuffer';
 
+      // Add raw event listener to see if ANY messages arrive
+      ws.addEventListener('message', (event) => {
+        console.log('🚨 RAW MESSAGE EVENT:', event.type, 'data type:', typeof event.data, 'size:', event.data.byteLength || event.data.length);
+      });
+
       // Timeout if connection takes too long
       const timeout = setTimeout(() => {
         if (ws.readyState !== WebSocket.OPEN) {
