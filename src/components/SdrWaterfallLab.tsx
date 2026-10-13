@@ -177,6 +177,27 @@ export const SdrWaterfallLab: React.FC = () => {
     }
   }, [labMode]);
 
+  // Auto-proxy external URLs to avoid CORS issues
+  const getProxiedUrl = (url: string): string => {
+    // If already a proxy URL, return as-is
+    if (url.startsWith('/api/websdr-proxy')) {
+      return url;
+    }
+
+    // If localhost URL, use directly
+    if (url.includes('localhost') || url.includes('127.0.0.1')) {
+      return url;
+    }
+
+    // For all external URLs, route through proxy
+    if (url.startsWith('http://') || url.startsWith('https://')) {
+      return '/api/websdr-proxy?url=' + encodeURIComponent(url);
+    }
+
+    // Otherwise use as-is (relative URLs, etc)
+    return url;
+  };
+
   // --- LIVE AUDIO CONNECTION & WEBAUDIO SETUP ---
   const handleStartLiveStream = async () => {
     setLiveStreamError(null);
@@ -186,7 +207,9 @@ export const SdrWaterfallLab: React.FC = () => {
       const audio = liveAudioRef.current;
       if (!audio) return;
 
-      audio.src = streamUrl;
+      // Auto-proxy external URLs
+      const proxiedUrl = getProxiedUrl(streamUrl);
+      audio.src = proxiedUrl;
       audio.volume = liveVolume;
 
       // Initialize Web Audio Context if not ready
@@ -979,7 +1002,7 @@ export const SdrWaterfallLab: React.FC = () => {
                     <span className="text-[10px] text-slate-500 font-mono uppercase">Scanner Feeds:</span>
                     <button
                       type="button"
-                      onClick={() => handleSaveStreamUrl('/api/websdr-proxy?url=' + encodeURIComponent('http://ice1.somafm.com/groovesalad-128-mp3'))}
+                      onClick={() => handleSaveStreamUrl('http://ice1.somafm.com/groovesalad-128-mp3')}
                       className="px-2 py-1 bg-slate-800/50 hover:bg-amber-500/20 border border-slate-700 hover:border-amber-500/40 rounded text-[10px] font-mono text-slate-300 hover:text-amber-300 transition-colors"
                       title="Test music stream - SomaFM Groove Salad"
                     >
@@ -987,7 +1010,7 @@ export const SdrWaterfallLab: React.FC = () => {
                     </button>
                     <button
                       type="button"
-                      onClick={() => handleSaveStreamUrl('/api/websdr-proxy?url=' + encodeURIComponent('http://radio.weatherusa.net/NWR/KIH61.mp3'))}
+                      onClick={() => handleSaveStreamUrl('http://radio.weatherusa.net/NWR/KIH61.mp3')}
                       className="px-2 py-1 bg-slate-800/50 hover:bg-yellow-500/20 border border-slate-700 hover:border-yellow-500/40 rounded text-[10px] font-mono text-slate-300 hover:text-yellow-300 transition-colors"
                       title="NOAA Weather Radio - Omaha KIH61"
                     >
@@ -995,7 +1018,7 @@ export const SdrWaterfallLab: React.FC = () => {
                     </button>
                     <button
                       type="button"
-                      onClick={() => handleSaveStreamUrl('/api/websdr-proxy?url=' + encodeURIComponent('https://calls.broadcastify.com/vlpd7o2r/1678/1791838366-52500.mp3'))}
+                      onClick={() => handleSaveStreamUrl('https://calls.broadcastify.com/vlpd7o2r/1678/1791838366-52500.mp3')}
                       className="px-2 py-1 bg-slate-800/50 hover:bg-blue-500/20 border border-slate-700 hover:border-blue-500/40 rounded text-[10px] font-mono text-slate-300 hover:text-blue-300 transition-colors"
                       title="Omaha Police & Douglas County Sheriff"
                     >
@@ -1003,7 +1026,7 @@ export const SdrWaterfallLab: React.FC = () => {
                     </button>
                     <button
                       type="button"
-                      onClick={() => handleSaveStreamUrl('/api/websdr-proxy?url=' + encodeURIComponent('https://broadcastify.cdnstream1.com/27844'))}
+                      onClick={() => handleSaveStreamUrl('https://broadcastify.cdnstream1.com/27844')}
                       className="px-2 py-1 bg-slate-800/50 hover:bg-red-500/20 border border-slate-700 hover:border-red-500/40 rounded text-[10px] font-mono text-slate-300 hover:text-red-300 transition-colors"
                       title="Lincoln Fire & Rescue"
                     >
@@ -1014,7 +1037,7 @@ export const SdrWaterfallLab: React.FC = () => {
                     <span className="text-[10px] text-slate-500 font-mono uppercase">Public WebSDRs:</span>
                     <button
                       type="button"
-                      onClick={() => handleSaveStreamUrl('/api/websdr-proxy?url=' + encodeURIComponent('http://websdr.ewi.utwente.nl:8901/'))}
+                      onClick={() => handleSaveStreamUrl('http://websdr.ewi.utwente.nl:8901/')}
                       className="px-2 py-1 bg-slate-800/50 hover:bg-green-500/20 border border-slate-700 hover:border-green-500/40 rounded text-[10px] font-mono text-slate-300 hover:text-green-300 transition-colors"
                       title="University of Twente WebSDR - Netherlands (HF/VHF)"
                     >
@@ -1022,7 +1045,7 @@ export const SdrWaterfallLab: React.FC = () => {
                     </button>
                     <button
                       type="button"
-                      onClick={() => handleSaveStreamUrl('/api/websdr-proxy?url=' + encodeURIComponent('http://sdr.websdrmaasbree.nl:8901/'))}
+                      onClick={() => handleSaveStreamUrl('http://sdr.websdrmaasbree.nl:8901/')}
                       className="px-2 py-1 bg-slate-800/50 hover:bg-green-500/20 border border-slate-700 hover:border-green-500/40 rounded text-[10px] font-mono text-slate-300 hover:text-green-300 transition-colors"
                       title="Maasbree WebSDR - Netherlands (HF)"
                     >
@@ -1030,7 +1053,7 @@ export const SdrWaterfallLab: React.FC = () => {
                     </button>
                     <button
                       type="button"
-                      onClick={() => handleSaveStreamUrl('/api/websdr-proxy?url=' + encodeURIComponent('http://rx.linkfanel.net:8073/'))}
+                      onClick={() => handleSaveStreamUrl('http://rx.linkfanel.net:8073/')}
                       className="px-2 py-1 bg-slate-800/50 hover:bg-green-500/20 border border-slate-700 hover:border-green-500/40 rounded text-[10px] font-mono text-slate-300 hover:text-green-300 transition-colors"
                       title="LinkFanel WebSDR - Sweden"
                     >
@@ -1038,7 +1061,7 @@ export const SdrWaterfallLab: React.FC = () => {
                     </button>
                   </div>
                   <div className="text-[10px] text-slate-500 mt-1">
-                    💡 All streams proxied through server to avoid CORS issues. Paste any WebSDR audio URL above.
+                    💡 Auto-proxied for CORS. Paste ANY WebSDR or scanner URL above - it works automatically!
                   </div>
                 </div>
 
