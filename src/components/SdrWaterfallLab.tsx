@@ -999,14 +999,22 @@ export const SdrWaterfallLab: React.FC = () => {
                 {/* Scanner Feed Presets */}
                 <div className="space-y-2 py-2 border-b border-slate-800/50 pb-3">
                   <div className="flex flex-wrap items-center gap-2">
-                    <span className="text-[10px] text-slate-500 font-mono uppercase">Quick Streams:</span>
+                    <span className="text-[10px] text-slate-500 font-mono uppercase">Test Streams:</span>
                     <button
                       type="button"
                       onClick={() => handleSaveStreamUrl('http://ice1.somafm.com/groovesalad-128-mp3')}
                       className="px-2 py-1 bg-slate-800/50 hover:bg-amber-500/20 border border-slate-700 hover:border-amber-500/40 rounded text-[10px] font-mono text-slate-300 hover:text-amber-300 transition-colors"
-                      title="Test music stream - SomaFM Groove Salad"
+                      title="Test music stream - SomaFM Groove Salad (always works!)"
                     >
-                      🎵 Test Music
+                      🎵 SomaFM Music
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleSaveStreamUrl('http://ice1.somafm.com/defcon-128-mp3')}
+                      className="px-2 py-1 bg-slate-800/50 hover:bg-amber-500/20 border border-slate-700 hover:border-amber-500/40 rounded text-[10px] font-mono text-slate-300 hover:text-amber-300 transition-colors"
+                      title="DEF CON Radio - Electronic music"
+                    >
+                      🎧 DEF CON Radio
                     </button>
                     <button
                       type="button"
@@ -1024,44 +1032,9 @@ export const SdrWaterfallLab: React.FC = () => {
                     >
                       📻 BBC World
                     </button>
-                    <button
-                      type="button"
-                      onClick={() => handleSaveStreamUrl('https://ntd1.akamaized.net/hls/live/2013923/NASA-NTV1-HLS/master.m3u8')}
-                      className="px-2 py-1 bg-slate-800/50 hover:bg-blue-500/20 border border-slate-700 hover:border-blue-500/40 rounded text-[10px] font-mono text-slate-300 hover:text-blue-300 transition-colors"
-                      title="NASA TV Audio"
-                    >
-                      🚀 NASA Audio
-                    </button>
-                  </div>
-                  <div className="flex flex-wrap items-center gap-2">
-                    <span className="text-[10px] text-slate-500 font-mono uppercase">Scanner Feeds:</span>
-                    <button
-                      type="button"
-                      onClick={() => handleSaveStreamUrl('https://calls.broadcastify.com/vlpd7o2r/1678/1791838366-52500.mp3')}
-                      className="px-2 py-1 bg-slate-800/50 hover:bg-blue-500/20 border border-slate-700 hover:border-blue-500/40 rounded text-[10px] font-mono text-slate-300 hover:text-blue-300 transition-colors"
-                      title="Omaha Police & Douglas County Sheriff"
-                    >
-                      🚔 Omaha Police
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => handleSaveStreamUrl('https://broadcastify.cdnstream1.com/27844')}
-                      className="px-2 py-1 bg-slate-800/50 hover:bg-red-500/20 border border-slate-700 hover:border-red-500/40 rounded text-[10px] font-mono text-slate-300 hover:text-red-300 transition-colors"
-                      title="Lincoln Fire & Rescue"
-                    >
-                      🚒 Lincoln Fire
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => handleSaveStreamUrl('http://relay.broadcastify.com/510267192')}
-                      className="px-2 py-1 bg-slate-800/50 hover:bg-blue-500/20 border border-slate-700 hover:border-blue-500/40 rounded text-[10px] font-mono text-slate-300 hover:text-blue-300 transition-colors"
-                      title="San Francisco Police/Fire"
-                    >
-                      🚔 SF Police
-                    </button>
                   </div>
                   <div className="text-[10px] text-slate-500 mt-1">
-                    💡 Auto-proxied for CORS. Works with direct audio streams (MP3, M3U8, Icecast). WebSDR sites need their own interface.
+                    💡 Auto-proxied for CORS. For scanner feeds, visit <a href="https://broadcastify.com" target="_blank" rel="noopener" className="text-blue-400 hover:underline">broadcastify.com</a> and find stream URLs for your area.
                   </div>
                 </div>
 
