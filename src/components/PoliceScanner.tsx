@@ -12,7 +12,7 @@ interface ScannerFeed {
   description: string;
   url: string;
   location?: string;
-  type: 'police' | 'fire' | 'ems' | 'weather' | 'custom';
+  type: 'police' | 'fire' | 'ems' | 'weather' | 'talk' | 'custom';
 }
 
 const DEFAULT_FEEDS: ScannerFeed[] = [
@@ -47,17 +47,43 @@ const DEFAULT_FEEDS: ScannerFeed[] = [
     url: 'http://ice1.somafm.com/groovesalad-128-mp3',
     location: 'Internet Radio',
     type: 'custom'
+  },
+  {
+    id: 'coast-to-coast-am',
+    name: 'Coast to Coast AM',
+    description: 'Overnight talk with George Noory — weeknights 12am-5am CT, Premiere Networks',
+    // Stream URL needed - Coast to Coast AM is a commercial syndicated show.
+    // To find a stream: check local affiliate station websites (e.g. KFI Los Angeles, WGN Chicago),
+    // Broadcastify talk feeds, or streaming services like iHeartRadio/TuneIn.
+    // Add a working stream URL via the + Add Feed button.
+    url: '',
+    location: 'Syndicated',
+    type: 'talk'
   }
 ];
 
-const FEEDS_STORAGE_KEY = 'police_scanner_feeds_v1';
+const FEEDS_STORAGE_KEY = 'police_scanner_feeds_v2';
+const OLD_FEEDS_STORAGE_KEY = 'police_scanner_feeds_v1';
 
 export const PoliceScanner: React.FC = () => {
   const [feeds, setFeeds] = useState<ScannerFeed[]>(() => {
     try {
+      // Try to load v2 feeds first
       const stored = localStorage.getItem(FEEDS_STORAGE_KEY);
       if (stored) {
         return JSON.parse(stored);
+      }
+
+      // Migrate from v1 if it exists
+      const oldStored = localStorage.getItem(OLD_FEEDS_STORAGE_KEY);
+      if (oldStored) {
+        const oldFeeds = JSON.parse(oldStored);
+        // Merge old custom feeds with new defaults
+        const customFeeds = oldFeeds.filter((f: ScannerFeed) => f.id.startsWith('custom-'));
+        const migratedFeeds = [...DEFAULT_FEEDS, ...customFeeds];
+        // Save to new key
+        localStorage.setItem(FEEDS_STORAGE_KEY, JSON.stringify(migratedFeeds));
+        return migratedFeeds;
       }
     } catch (e) {
       console.error('Failed to load scanner feeds:', e);
@@ -116,6 +142,12 @@ export const PoliceScanner: React.FC = () => {
   const playFeed = async (feedId: string) => {
     const feed = feeds.find(f => f.id === feedId);
     if (!feed || !audioRef.current) return;
+
+    // Check if URL is empty
+    if (!feed.url.trim()) {
+      setError(`${feed.name} needs a stream URL. Add one using the + Add Feed button or edit this feed.`);
+      return;
+    }
 
     try {
       setIsLoading(true);
@@ -204,6 +236,7 @@ export const PoliceScanner: React.FC = () => {
       case 'fire': return 'text-red-400';
       case 'ems': return 'text-green-400';
       case 'weather': return 'text-yellow-400';
+      case 'talk': return 'text-purple-400';
       default: return 'text-gray-400';
     }
   };
@@ -214,6 +247,7 @@ export const PoliceScanner: React.FC = () => {
       case 'fire': return 'Fire';
       case 'ems': return 'EMS';
       case 'weather': return 'Weather';
+      case 'talk': return 'Talk Radio';
       default: return 'Custom';
     }
   };
@@ -365,6 +399,7 @@ export const PoliceScanner: React.FC = () => {
                       <option value="fire">Fire</option>
                       <option value="ems">EMS</option>
                       <option value="weather">Weather</option>
+                      <option value="talk">Talk Radio</option>
                       <option value="custom">Custom</option>
                     </select>
                   </div>

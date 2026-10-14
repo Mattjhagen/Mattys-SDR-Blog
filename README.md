@@ -23,12 +23,12 @@ A comprehensive web platform for documenting amateur radio adventures, Software 
 - Band presets: 20m HF DX, 40m nets, 2m calling (146.520), NOAA weather satellites
 
 ### 🚨 Police Scanner
-- **Live emergency services radio** - Police, Fire, EMS, and Weather feeds
-- **Pre-loaded feeds** - Omaha Police, Lincoln Fire, NOAA Weather, and more
+- **Live emergency services radio** - Police, Fire, EMS, Weather, and Talk Radio feeds
+- **Pre-loaded feeds** - Omaha Police, Lincoln Fire, NOAA Weather, Coast to Coast AM, and more
 - **Add custom feeds** - Support for Broadcastify, Scanner Radio, and custom URLs
 - **Feed management** - Add, delete, and organize your scanner feeds
 - **Volume control** - Adjust volume on-the-fly while listening
-- **Feed categories** - Organized by Police, Fire, EMS, Weather, and Custom types
+- **Feed categories** - Organized by Police, Fire, EMS, Weather, Talk Radio, and Custom types
 
 ### 🗺️ QSO Logbook & World Map
 - Interactive world map with geodesic paths to contacted stations
@@ -126,7 +126,7 @@ cd Mattys-SDR-Blog
    - **Description** - e.g., "Fire and EMS Dispatch"
    - **Stream URL** (required) - Direct audio stream URL
    - **Location** - e.g., "Omaha, NE"
-   - **Type** - Police, Fire, EMS, Weather, or Custom
+   - **Type** - Police, Fire, EMS, Weather, Talk Radio, or Custom
 3. Click **"Add Feed"** to save
 
 ### Finding Scanner Feeds
