@@ -12,6 +12,8 @@
   },
   "dependencies": {
     "@google/genai": "^2.4.0",
+    "@jtarrio/signals": "^0.10.1",
+    "@jtarrio/webrtlsdr": "^3.0.6",
     "@simplewebauthn/browser": "^14.0.0",
     "@simplewebauthn/server": "^14.0.3",
     "@tailwindcss/vite": "^4.3.3",

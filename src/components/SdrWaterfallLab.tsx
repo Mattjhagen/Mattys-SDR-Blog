@@ -7,6 +7,7 @@ import {
 import { sdrAudio } from '../utils/sdrAudio';
 import { LinuxSetupGuideModal } from './LinuxSetupGuideModal';
 import { OpenWebRXClient } from './OpenWebRXClient';
+import { LocalDongleReceiver } from './LocalDongleReceiver';
 
 interface SignalPeak {
   freqHz: number;
@@ -73,8 +74,8 @@ const STREAM_STORAGE_KEY = 'ham_radio_sdr_stream_url_v1';
 const STATION_INFO_STORAGE_KEY = 'ham_radio_live_sdr_station_info_v1';
 
 export const SdrWaterfallLab: React.FC = () => {
-  // Operating Mode: 'live' = physical RTL-SDR v4 via SDR++, 'remote' = OpenWebRX/KiwiSDR, 'simulator' = synthetic RF band practice
-  const [labMode, setLabMode] = useState<'live' | 'remote' | 'simulator'>('live');
+  // Operating Mode: 'live' = physical RTL-SDR v4 via SDR++, 'remote' = OpenWebRX/KiwiSDR, 'simulator' = synthetic RF band practice, 'local-dongle' = WebUSB local dongle
+  const [labMode, setLabMode] = useState<'live' | 'remote' | 'simulator' | 'local-dongle'>('live');
 
   // --- LIVE RTL-SDR STATION STREAM STATE ---
   const [streamUrl, setStreamUrl] = useState<string>(() => {
@@ -784,6 +785,18 @@ export const SdrWaterfallLab: React.FC = () => {
             >
               <span className={`w-2 h-2 rounded-full ${isLiveConnected ? 'bg-red-600 animate-ping' : 'bg-amber-600'}`} />
               <span>Live RTL-SDR v4</span>
+            </button>
+            <button
+              onClick={() => setLabMode('local-dongle')}
+              className={`px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition-colors ${
+                labMode === 'local-dongle'
+                  ? 'bg-amber-400 text-slate-950 font-bold shadow-sm'
+                  : 'text-slate-400 hover:text-white'
+              }`}
+              title="Connect your own RTL-SDR via WebUSB (Chrome/Edge only)"
+            >
+              <Radio className="w-3.5 h-3.5" />
+              <span>Local Dongle</span>
             </button>
             <button
               onClick={() => setLabMode('remote')}
@@ -1534,7 +1547,16 @@ export const SdrWaterfallLab: React.FC = () => {
       )}
 
       {/* ======================================================== */}
-      {/* MODE 3: REMOTE SDR (OpenWebRX/KiwiSDR) */}
+      {/* MODE 3: LOCAL DONGLE (WebUSB RTL-SDR) */}
+      {/* ======================================================== */}
+      {labMode === 'local-dongle' && (
+        <div className="animate-in fade-in duration-150">
+          <LocalDongleReceiver />
+        </div>
+      )}
+
+      {/* ======================================================== */}
+      {/* MODE 4: REMOTE SDR (OpenWebRX/KiwiSDR) */}
       {/* ======================================================== */}
       {labMode === 'remote' && (
         <div className="animate-in fade-in duration-150">

@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Ham Radio Shack</title>
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:#14171c;font-family:system-ui,sans-serif;color:#e8e2d0;display:flex;flex-direction:column;align-items:center}
+svg{width:100%;max-width:900px;height:auto;display:block}
+.bar{display:flex;gap:12px;padding:12px;align-items:center}
+button{background:#d9a441;border:0;border-radius:8px;padding:8px 16px;font-weight:700;cursor:pointer;color:#2a1c05}
+.lbl{font-size:14px;opacity:.8}
+@keyframes wave{0%{opacity:.9;transform:scale(.6)}100%{opacity:0;transform:scale(1.6)}}
+.w{transform-origin:150px 330px;animation:wave 1.6s infinite ease-out;fill:none;stroke:#f0c36a;stroke-width:3}
+.w2{animation-delay:.5s}.w3{animation-delay:1s}
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
+#head{animation:bob 2.4s infinite ease-in-out}
+@keyframes blink{0%,92%,100%{transform:scaleY(1)}96%{transform:scaleY(.1)}}
+.eye{transform-box:fill-box;transform-origin:center;animation:blink 4s infinite}
+@keyframes blinkled{50%{opacity:.3}}
+#led{animation:blinkled 1s infinite}
+.paused *{animation-play-state:paused!important}
+</style></head><body>
+<svg id="scene" viewBox="0 0 800 520" xmlns="http://www.w3.org/2000/svg">
+<!-- wall -->
+<rect width="800" height="520" fill="#2b2f38"/>
+<rect y="0" width="800" height="330" fill="#343a46"/>
+<!-- window -->
+<rect x="60" y="40" width="130" height="110" fill="#10233f" stroke="#6b5a3a" stroke-width="6"/>
+<circle cx="150" cy="75" r="10" fill="#f5e9b8"/>
+<line x1="125" y1="40" x2="125" y2="150" stroke="#6b5a3a" stroke-width="4"/>
+<!-- QSL cards -->
+<g stroke="#222" stroke-width="1">
+<rect x="250" y="40" width="60" height="40" fill="#e8d9a8" transform="rotate(-4 280 60)"/>
+<rect x="320" y="45" width="60" height="40" fill="#a8d0e8" transform="rotate(3 350 65)"/>
+<rect x="390" y="38" width="60" height="40" fill="#e8a8a8" transform="rotate(-2 420 58)"/>
+<rect x="285" y="95" width="60" height="40" fill="#b8e8a8" transform="rotate(2 315 115)"/>
+<rect x="355" y="98" width="60" height="40" fill="#e8c8f0" transform="rotate(-3 385 118)"/>
+</g>
+<!-- world map -->
+<rect x="520" y="40" width="220" height="120" fill="#1d3b5c" stroke="#6b5a3a" stroke-width="5"/>
+<g fill="#4f8a4f"><ellipse cx="580" cy="90" rx="30" ry="22"/><ellipse cx="640" cy="105" rx="20" ry="28"/><ellipse cx="690" cy="80" rx="28" ry="18"/></g>
+<circle cx="580" cy="92" r="4" fill="#ff5252"/>
+<!-- antenna cable -->
+<path d="M470 0 C470 100 520 200 560 330" stroke="#111" stroke-width="4" fill="none"/>
+<!-- desk -->
+<rect y="380" width="800" height="140" fill="#6b4a2b"/>
+<rect y="372" width="800" height="14" fill="#8a6038"/>
+<!-- speaker -->
+<rect x="95" y="290" width="110" height="90" rx="8" fill="#1b1b1b" stroke="#444" stroke-width="3"/>
+<circle cx="150" cy="335" r="30" fill="#2c2c2c" stroke="#555" stroke-width="3"/>
+<circle cx="150" cy="335" r="9" fill="#444"/>
+<g><circle class="w" cx="150" cy="330" r="50"/><circle class="w w2" cx="150" cy="330" r="50"/><circle class="w w3" cx="150" cy="330" r="50"/></g>
+<!-- radio -->
+<rect x="370" y="270" width="360" height="112" rx="10" fill="#3d4047" stroke="#1c1c1c" stroke-width="3"/>
+<rect x="385" y="283" width="190" height="46" rx="5" fill="#0b1a10" stroke="#111" stroke-width="2"/>
+<text id="freq" x="480" y="318" text-anchor="middle" font-family="monospace" font-size="30" fill="#5dff8a">14.200.00</text>
+<text x="392" y="296" font-family="monospace" font-size="9" fill="#5dff8a">USB  20m</text>
+<!-- S meter -->
+<rect x="385" y="337" width="120" height="36" rx="4" fill="#efe3b8" stroke="#111"/>
+<g font-size="8" font-family="monospace" fill="#222"><text x="393" y="352">1 3 5 7 9 +20</text></g>
+<line id="needle" x1="445" y1="371" x2="445" y2="342" stroke="#b21f1f" stroke-width="2" style="transform-origin:445px 371px"/>
+<circle id="led" cx="520" cy="350" r="5" fill="#ff4040"/>
+<!-- small knobs -->
+<circle cx="535" cy="305" r="12" fill="#222" stroke="#666" stroke-width="2"/>
+<circle cx="535" cy="350" r="9" fill="#222" stroke="#666" stroke-width="2"/>
+<!-- big VFO knob -->
+<g id="knob" style="transform-origin:650px 326px">
+<circle cx="650" cy="326" r="42" fill="#18181a" stroke="#777" stroke-width="3"/>
+<circle cx="650" cy="326" r="34" fill="#26262a"/>
+<circle cx="650" cy="296" r="5" fill="#d9a441"/>
+</g>
+<!-- mic -->
+<rect x="300" y="355" width="40" height="25" rx="4" fill="#222"/>
+<rect x="312" y="330" width="16" height="30" fill="#333"/><circle cx="320" cy="325" r="12" fill="#555"/>
+<!-- character -->
+<g id="person">
+<!-- torso -->
+<path d="M150 520 Q160 420 260 410 L430 410 Q540 420 560 520Z" fill="#c8942a" transform="translate(-30,0) scale(1.0)"/>
+<g id="head">
+<!-- hair back -->
+<ellipse cx="338" cy="300" rx="62" ry="68" fill="#d3a85a"/>
+<path d="M300 365 Q338 420 380 365Z" fill="#c8942a"/>
+<!-- neck -->
+<rect x="318" y="345" width="40" height="30" fill="#e8b996"/>
+<!-- face -->
+<ellipse cx="338" cy="305" rx="50" ry="58" fill="#f0c4a2"/>
+<!-- hair top slick back -->
+<path d="M288 285 Q300 235 345 238 Q385 242 390 285 Q370 262 340 262 Q305 262 288 285Z" fill="#d3a85a"/>
+<!-- eyes -->
+<ellipse class="eye" cx="318" cy="302" rx="6" ry="4" fill="#fff"/><circle cx="318" cy="302" r="2.5" fill="#6aa0b8"/>
+<ellipse class="eye" cx="358" cy="302" rx="6" ry="4" fill="#fff"/><circle cx="358" cy="302" r="2.5" fill="#6aa0b8"/>
+<path d="M306 291 L328 293 M348 293 L370 291" stroke="#a8782e" stroke-width="3" stroke-linecap="round"/>
+<!-- nose -->
+<path d="M338 305 Q332 322 340 324" stroke="#c8957a" stroke-width="2" fill="none"/>
+<!-- beard & mustache -->
+<path d="M292 322 Q296 372 338 378 Q380 372 384 322 Q370 345 338 342 Q306 345 292 322Z" fill="#c78a3b"/>
+<path d="M312 328 Q338 320 364 328 Q352 340 338 336 Q324 340 312 328Z" fill="#b87a2c"/>
+<path d="M326 352 Q338 356 350 352" stroke="#8a5a1c" stroke-width="2" fill="none"/>
+<!-- headphones -->
+<path d="M284 300 Q285 225 338 225 Q391 225 392 300" stroke="#1d1d1d" stroke-width="9" fill="none"/>
+<rect x="272" y="288" width="20" height="38" rx="9" fill="#222"/>
+<rect x="384" y="288" width="20" height="38" rx="9" fill="#222"/>
+</g>
+<!-- left arm to knob -->
+<path id="arm" d="M440 430 Q560 440 640 340" stroke="#c8942a" stroke-width="30" stroke-linecap="round" fill="none"/>
+<g id="hand"><circle cx="642" cy="338" r="15" fill="#f0c4a2"/></g>
+</g>
+</svg>
+<div class="bar">
+<button id="btn">Pause</button>
+<span class="lbl" id="status">Tuning across 20m…</span>
+</div>
+<script>
+(function(){
+var f=14.150,dir=1,pause=0,paused=false,stations=[14.185,14.236,14.278,14.322],hit=null;
+var fr=document.getElementById('freq'),kn=document.getElementById('knob'),nd=document.getElementById('needle'),
+st=document.getElementById('status'),hand=document.getElementById('hand'),sc=document.getElementById('scene');
+var t=0;
+function fmt(x){var s=x.toFixed(5).split('.');return s[0]+'.'+s[1].slice(0,3)+'.'+s[1].slice(3,5)}
+function tick(){
+ if(!paused){
+  t+=1;
+  if(pause>0){pause--; if(pause===0)st.textContent='Tuning across 20m…'}
+  else{
+   f+=dir*0.0012;
+   if(f>14.350){dir=-1} if(f<14.150){dir=1}
+   for(var i=0;i<stations.length;i++){
+    if(Math.abs(f-stations[i])<0.0007 && hit!==stations[i]){hit=stations[i];pause=110;st.textContent='Station found — listening…';break}
+   }
+   if(pause===0&&hit!==null&&Math.abs(f-hit)>0.003)hit=null;
+  }
+  fr.textContent=fmt(f);
+  var ang=(f-14.15)*2000;
+  kn.style.transform='rotate('+ang+'deg)';
+  var sig=pause>0?(0.55+0.3*Math.sin(t/4)):(0.05+0.08*Math.random());
+  nd.style.transform='rotate('+(-45+sig*85)+'deg)';
+  hand.style.transform='translate('+(Math.sin(ang*Math.PI/180)*2)+'px,'+(Math.cos(ang*Math.PI/180)*2)+'px)';
+ }
+ requestAnimationFrame(tick);
+}
+document.getElementById('btn').onclick=function(){
+ paused=!paused;this.textContent=paused?'Resume':'Pause';
+ sc.classList.toggle('paused',paused);
+};
+tick();
+})();
+</script>
+</body></html>
