@@ -31,32 +31,19 @@ export const SdrPreviewCard: React.FC = () => {
     );
   }
 
-  // SDR not online yet - show placeholder with planned setup
+  // SDR not online yet - show station photo
   return (
     <div className="relative rounded-2xl overflow-hidden border border-slate-800/80 bg-slate-950 shadow-2xl">
-      {/* Blurred waterfall placeholder background */}
-      <div className="aspect-[4/3] w-full bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 relative overflow-hidden">
-        {/* Simulated waterfall pattern */}
-        <div className="absolute inset-0 opacity-20">
-          <div className="w-full h-full bg-gradient-to-b from-transparent via-amber-500/10 to-cyan-500/10" />
-          <div className="absolute inset-0 bg-[repeating-linear-gradient(0deg,transparent,transparent_2px,rgba(251,191,36,0.05)_2px,rgba(251,191,36,0.05)_4px)]" />
-        </div>
+      {/* Station photo background */}
+      <div className="aspect-[4/3] w-full relative overflow-hidden">
+        <img
+          src="/images/Matt-SDR-pic.jpeg"
+          alt="Matt's SDR Station - Amateur Radio Setup with RTL-SDR and Waterfall Display"
+          className="w-full h-full object-cover"
+        />
 
-        {/* Center badge */}
-        <div className="absolute inset-0 flex items-center justify-center z-10">
-          <div className="bg-slate-950/95 backdrop-blur-md border-2 border-amber-500/50 rounded-2xl px-6 py-4 shadow-2xl text-center">
-            <div className="flex items-center justify-center gap-2 mb-2">
-              <Radio className="w-5 h-5 text-amber-400" />
-              <span className="text-sm font-mono font-bold text-amber-400 tracking-wide">
-                RTL-SDR ORDERED
-              </span>
-            </div>
-            <p className="text-xs text-slate-300 font-medium">ONLINE SOON</p>
-          </div>
-        </div>
-
-        {/* Gradient overlay */}
-        <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent" />
+        {/* Gradient overlay for readability */}
+        <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/60 to-transparent" />
       </div>
 
       {/* Info panel at bottom */}
