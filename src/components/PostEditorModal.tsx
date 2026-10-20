@@ -10,10 +10,11 @@ interface PostEditorModalProps {
 }
 
 const STOCK_IMAGES = [
-  { label: 'SDR Shack & Lab', path: '/images/hero_ham_shack_1791391157714.jpg' },
+  { label: 'Matt\'s SDR Station', path: '/images/Matt-SDR-pic.jpeg' },
   { label: 'POTA Portable Field', path: '/images/article_qrp_pota_1791391169211.jpg' },
   { label: 'Weather Satellite QFH', path: '/images/article_noaa_apt_1791391179875.jpg' },
-  { label: 'Backyard Mag Loop', path: '/images/article_hf_magloop_1791391189393.jpg' }
+  { label: 'Backyard Mag Loop', path: '/images/article_hf_magloop_1791391189393.jpg' },
+  { label: 'SDR Shack & Lab', path: '/images/hero_ham_shack_1791391157714.jpg' }
 ];
 
 const OPERATOR_PROFILE_KEY = 'ham_radio_operator_profile_v1';

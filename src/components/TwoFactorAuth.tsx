@@ -95,17 +95,11 @@ export const TwoFactorAuth: React.FC<TwoFactorAuthProps> = ({
         const attempts = parseInt(setupAttempts, 10);
 
         // CRITICAL SECURITY FIX: Detect if this is user's main browser vs incognito
-        // Check if there's ANY blog data in localStorage (posts, session, etc.)
-        const hasBlogData = Object.keys(localStorage).some(key =>
-          key.startsWith('ham_radio_') && key !== TOTP_SECRET_KEY && key !== GLOBAL_SETUP_MARKER_KEY
-        );
-
-        // If this browser has blog data BUT no secret, likely user already set up 2FA elsewhere
-        // OR if the global marker exists (from a previous session before incognito)
+        // Check if the global marker exists (2FA was set up previously)
         const everSetup = localStorage.getItem(GLOBAL_SETUP_MARKER_KEY) === 'true';
 
-        if (!totpSecret && (hasBlogData || everSetup)) {
-          // This browser has used the blog before, so 2FA is likely already configured
+        if (!totpSecret && everSetup) {
+          // 2FA was set up before but secret is missing - user needs to use existing auth
           setError('⚠️ 2FA is already configured for this blog. Use your existing Google Authenticator app or YubiKey to authenticate. Opening setup in a new browser or incognito mode is not allowed. If you lost access, see RESET_2FA.md for emergency reset.');
           setIsSetupComplete(true); // Force to auth-only screen
           return;
